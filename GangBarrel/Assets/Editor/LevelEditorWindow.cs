@@ -1,4 +1,3 @@
-using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -6,14 +5,30 @@ using UnityEngine.Tilemaps;
 public class LevelEditorWindow : EditorWindow
 {
     private Tilemap tilemap;  // Reference to the target Tilemap
-    private TileBase selectedTile;  // The tile you want to paint
-    private GameObject selectedObject;  // The 3D object to place
-    private Vector3Int selectedPosition;  // The position to place the tile/object
+    private TileBase[] tilePalette;  // Array to store your predefined tiles
+    private int selectedTileIndex = -1;  // The index of the currently selected tile
+    private GameObject[] objectPalette;  // Array to store your predefined game objects
+    private int selectedObjectIndex = -1;  // The index of the currently selected game object
+
+    // Variables to track whether the palettes are collapsed or expanded
+    private bool showTilePalette = true;
+    private bool showObjectPalette = true;
+
+    // Array sizes
+    private int tilePaletteSize = 5;  // Default size for tile palette
+    private int objectPaletteSize = 5;  // Default size for object palette
 
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
     {
         GetWindow<LevelEditorWindow>("Level Editor");
+    }
+
+    private void OnEnable()
+    {
+        // Initialize the tile and object palettes with default sizes
+        tilePalette = new TileBase[tilePaletteSize];
+        objectPalette = new GameObject[objectPaletteSize];
     }
 
     private void OnGUI()
@@ -23,11 +38,81 @@ public class LevelEditorWindow : EditorWindow
         // Tilemap field to select target Tilemap
         tilemap = (Tilemap)EditorGUILayout.ObjectField("Target Tilemap", tilemap, typeof(Tilemap), true);
 
-        // Tile field to select the Tile to paint
-        selectedTile = (TileBase)EditorGUILayout.ObjectField("Tile to Paint", selectedTile, typeof(TileBase), false);
+        // Collapsible Tile Palette
+        showTilePalette = EditorGUILayout.Foldout(showTilePalette, "Tile Palette", true);
+        if (showTilePalette)
+        {
+            EditorGUI.indentLevel++;  // Indent content under the foldout
 
-        // Object field to select the 3D object
-        selectedObject = (GameObject)EditorGUILayout.ObjectField("Object to Place", selectedObject, typeof(GameObject), false);
+            // Input field for changing tile palette size
+            int newTilePaletteSize = EditorGUILayout.IntField("Tile Palette Size", tilePaletteSize);
+            if (newTilePaletteSize != tilePaletteSize)
+            {
+                tilePaletteSize = Mathf.Max(1, newTilePaletteSize);  // Ensure size is at least 1
+                ResizeTilePalette(tilePaletteSize);
+            }
+
+            // Display tile palette fields
+            for (int i = 0; i < tilePalette.Length; i++)
+            {
+                tilePalette[i] = (TileBase)EditorGUILayout.ObjectField($"Tile {i + 1}", tilePalette[i], typeof(TileBase), false);
+            }
+
+            // Display buttons for selecting tiles from the palette
+            GUILayout.Label("Select a Tile to Paint:");
+            GUILayout.BeginHorizontal();
+            for (int i = 0; i < tilePalette.Length; i++)
+            {
+                if (tilePalette[i] != null)
+                {
+                    if (GUILayout.Button($"Tile {i + 1}"))
+                    {
+                        selectedTileIndex = i;
+                        selectedObjectIndex = -1; // Deselect any selected object
+                    }
+                }
+            }
+            GUILayout.EndHorizontal();
+            EditorGUI.indentLevel--;  // Reset indentation
+        }
+
+        // Collapsible Object Palette
+        showObjectPalette = EditorGUILayout.Foldout(showObjectPalette, "Object Palette", true);
+        if (showObjectPalette)
+        {
+            EditorGUI.indentLevel++;  // Indent content under the foldout
+
+            // Input field for changing object palette size
+            int newObjectPaletteSize = EditorGUILayout.IntField("Object Palette Size", objectPaletteSize);
+            if (newObjectPaletteSize != objectPaletteSize)
+            {
+                objectPaletteSize = Mathf.Max(1, newObjectPaletteSize);  // Ensure size is at least 1
+                ResizeObjectPalette(objectPaletteSize);
+            }
+
+            // Display object palette fields
+            for (int i = 0; i < objectPalette.Length; i++)
+            {
+                objectPalette[i] = (GameObject)EditorGUILayout.ObjectField($"Object {i + 1}", objectPalette[i], typeof(GameObject), false);
+            }
+
+            // Display buttons for selecting objects from the palette
+            GUILayout.Label("Select an Object to Place:");
+            GUILayout.BeginHorizontal();
+            for (int i = 0; i < objectPalette.Length; i++)
+            {
+                if (objectPalette[i] != null)
+                {
+                    if (GUILayout.Button($"Object {i + 1}"))
+                    {
+                        selectedObjectIndex = i;
+                        selectedTileIndex = -1; // Deselect any selected tile
+                    }
+                }
+            }
+            GUILayout.EndHorizontal();
+            EditorGUI.indentLevel--;  // Reset indentation
+        }
 
         if (tilemap != null)
         {
@@ -43,6 +128,28 @@ public class LevelEditorWindow : EditorWindow
         }
     }
 
+    // Resize the tile palette array while preserving existing values
+    private void ResizeTilePalette(int newSize)
+    {
+        TileBase[] newTilePalette = new TileBase[newSize];
+        for (int i = 0; i < Mathf.Min(newSize, tilePalette.Length); i++)
+        {
+            newTilePalette[i] = tilePalette[i];
+        }
+        tilePalette = newTilePalette;
+    }
+
+    // Resize the object palette array while preserving existing values
+    private void ResizeObjectPalette(int newSize)
+    {
+        GameObject[] newObjectPalette = new GameObject[newSize];
+        for (int i = 0; i < Mathf.Min(newSize, objectPalette.Length); i++)
+        {
+            newObjectPalette[i] = objectPalette[i];
+        }
+        objectPalette = newObjectPalette;
+    }
+    
     private void OnSceneGUI(SceneView sceneView)
     {
         Event e = Event.current;
@@ -67,17 +174,19 @@ public class LevelEditorWindow : EditorWindow
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
             
             // Place the selected tile
-            if (selectedTile != null)
+            if (selectedTileIndex >= 0 && selectedTileIndex < tilePalette.Length && tilePalette[selectedTileIndex] != null)
             {
                 Undo.RecordObject(tilemap, "Place Tile");
-                tilemap.SetTile(cellPosition, selectedTile);
+                tilemap.SetTile(cellPosition, tilePalette[selectedTileIndex]);
             }
 
-            // Place the selected 3D object
-            if (selectedObject != null)
+            // Place the selected 3D object if any object from the palette is selected
+            if (selectedObjectIndex >= 0 && selectedObjectIndex < objectPalette.Length && objectPalette[selectedObjectIndex] != null)
             {
-                GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(selectedObject);
+                GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(objectPalette[selectedObjectIndex]);
                 newObject.transform.position = tilemap.GetCellCenterWorld(cellPosition);
+                newObject.transform.position = new Vector3(newObject.transform.position.x,
+                    newObject.transform.localScale.y / 2, newObject.transform.position.z);
                 Undo.RegisterCreatedObjectUndo(newObject, "Place Object");
             }
 
