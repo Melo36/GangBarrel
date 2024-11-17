@@ -18,6 +18,14 @@ public class LevelEditorWindow : EditorWindow
     private int tilePaletteSize = 5;  // Default size for tile palette
     private int objectPaletteSize = 5;  // Default size for object palette
 
+    private const string TilePaletteKey = "LevelEditor_TilePalette";
+    private const string TilemapKey = "LevelEditor_Tilemap";
+    private const string ObjectPaletteKey = "LevelEditor_ObjectPalette";
+    private const string TilePaletteSizeKey = "LevelEditor_TilePaletteSize";
+    private const string ObjectPaletteSizeKey = "LevelEditor_ObjectPaletteSize";
+    
+    private bool isPainting = false; // New flag to track painting mode
+
     [MenuItem("Tools/Level Editor")]
     public static void ShowWindow()
     {
@@ -26,9 +34,71 @@ public class LevelEditorWindow : EditorWindow
 
     private void OnEnable()
     {
-        // Initialize the tile and object palettes with default sizes
-        tilePalette = new TileBase[tilePaletteSize];
-        objectPalette = new GameObject[objectPaletteSize];
+        LoadData();  // Load data when window opens
+    }
+
+    private void OnDisable()
+    {
+        SaveData();  // Save data when window closes
+    }
+
+    private void LoadData()
+    {
+        // Load Tilemap
+        int tilemapID = EditorPrefs.GetInt(TilemapKey, -1);
+        if (tilemapID != -1)
+        {
+            tilemap = EditorUtility.InstanceIDToObject(tilemapID) as Tilemap;
+        }
+
+        // Load Tile Palette
+        string tilePaletteJson = EditorPrefs.GetString(TilePaletteKey, "");
+        if (!string.IsNullOrEmpty(tilePaletteJson))
+        {
+            SerializableTilePalette loadedTilePalette = JsonUtility.FromJson<SerializableTilePalette>(tilePaletteJson);
+            tilePalette = loadedTilePalette.tiles;
+            tilePaletteSize = tilePalette.Length;
+        }
+        else
+        {
+            tilePalette = new TileBase[tilePaletteSize];
+        }
+
+        // Load Object Palette
+        string objectPaletteJson = EditorPrefs.GetString(ObjectPaletteKey, "");
+        if (!string.IsNullOrEmpty(objectPaletteJson))
+        {
+            SerializableObjectPalette loadedObjectPalette = JsonUtility.FromJson<SerializableObjectPalette>(objectPaletteJson);
+            objectPalette = loadedObjectPalette.objects;
+            objectPaletteSize = objectPalette.Length;
+        }
+        else
+        {
+            objectPalette = new GameObject[objectPaletteSize];
+        }
+    }
+
+    private void SaveData()
+    {
+        // Save Tilemap
+        if (tilemap != null)
+        {
+            EditorPrefs.SetInt(TilemapKey, tilemap.GetInstanceID());
+        }
+        else
+        {
+            EditorPrefs.DeleteKey(TilemapKey);
+        }
+
+        // Save Tile Palette
+        SerializableTilePalette tilePaletteData = new SerializableTilePalette(tilePalette);
+        string tilePaletteJson = JsonUtility.ToJson(tilePaletteData);
+        EditorPrefs.SetString(TilePaletteKey, tilePaletteJson);
+
+        // Save Object Palette
+        SerializableObjectPalette objectPaletteData = new SerializableObjectPalette(objectPalette);
+        string objectPaletteJson = JsonUtility.ToJson(objectPaletteData);
+        EditorPrefs.SetString(ObjectPaletteKey, objectPaletteJson);
     }
 
     private void OnGUI()
@@ -116,15 +186,33 @@ public class LevelEditorWindow : EditorWindow
 
         if (tilemap != null)
         {
-            if (GUILayout.Button("Start Painting"))
+            if (!isPainting && GUILayout.Button("Start Painting"))
             {
-                SceneView.duringSceneGui += OnSceneGUI;
+                StartPainting();
             }
 
-            if (GUILayout.Button("Stop Painting"))
+            if (isPainting && GUILayout.Button("Stop Painting"))
             {
-                SceneView.duringSceneGui -= OnSceneGUI;
+                StopPainting();
             }
+        }
+    }
+
+    private void StartPainting()
+    {
+        if (!isPainting)
+        {
+            SceneView.duringSceneGui += OnSceneGUI;
+            isPainting = true;
+        }
+    }
+
+    private void StopPainting()
+    {
+        if (isPainting)
+        {
+            SceneView.duringSceneGui -= OnSceneGUI;
+            isPainting = false;
         }
     }
 
@@ -195,6 +283,29 @@ public class LevelEditorWindow : EditorWindow
 
             // Repaint the Scene view to show the updated tile
             SceneView.RepaintAll();
+        }
+    }
+
+    // Helper classes for serialization
+    [System.Serializable]
+    private class SerializableTilePalette
+    {
+        public TileBase[] tiles;
+
+        public SerializableTilePalette(TileBase[] tiles)
+        {
+            this.tiles = tiles;
+        }
+    }
+
+    [System.Serializable]
+    private class SerializableObjectPalette
+    {
+        public GameObject[] objects;
+
+        public SerializableObjectPalette(GameObject[] objects)
+        {
+            this.objects = objects;
         }
     }
 }
