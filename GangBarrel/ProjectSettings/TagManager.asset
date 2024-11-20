@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Barrel
   - GroundPlane
+  - Bullet
   layers:
   - Default
   - TransparentFX

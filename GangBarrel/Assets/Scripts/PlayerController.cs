@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     public AIDestinationSetter aiDestinationSetter;
     public Tilemap tileMap; // Reference to your Tilemap component
 
-    private float speed = 10;
+    public float bulletSpeed = 15;
     
     public bool CanTraversePath(Vector3 start, Vector3 end)
     {
@@ -90,8 +90,9 @@ public class PlayerController : MonoBehaviour
         GameObject bullet = Instantiate(bulletPrefab);
         Destroy(bullet, 5f);
         
-        mousePosition = new Vector3(mousePosition.x, transform.position.y, mousePosition.z);
+        mousePosition = new Vector3(mousePosition.x, mousePosition.y, mousePosition.z);
         Vector3 direction = (mousePosition - transform.position).normalized;
-        bullet.GetComponent<Rigidbody>().AddForce(direction * speed, ForceMode.VelocityChange);
+        direction.Set(direction.x, 0.01f,direction.z);
+        bullet.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
     }
 }
