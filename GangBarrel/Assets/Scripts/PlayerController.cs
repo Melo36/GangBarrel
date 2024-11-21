@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Pathfinding;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
 public class PlayerController : MonoBehaviour
@@ -14,6 +16,7 @@ public class PlayerController : MonoBehaviour
 
     public float bulletSpeed = 15;
 
+    private bool shootMode = true; // Start in shooting mode
     
     public bool CanTraversePath(Vector3 start, Vector3 end)
     {
@@ -31,14 +34,32 @@ public class PlayerController : MonoBehaviour
         return PathUtilities.IsPathPossible(startNode, endNode);
     }
 
+    [SerializeField] private TextMeshProUGUI buttonTextMesh;
+    [SerializeField] private TextMeshProUGUI currentModeTextMesh;
+    
+    /// <summary>
+    /// Toggles the mode between shoot and walk. 
+    /// </summary>
+    public void ToggleMode()
+    {
+        buttonTextMesh.text = shootMode ? "Move" : "Shoot";
+        currentModeTextMesh.text = shootMode ? "Currently: Shoot Mode" : "Currently: Move Mode";
+        currentModeTextMesh.color = shootMode ? Color.red : Color.green;
+        shootMode = !shootMode; // Toggle the mode
+        Debug.Log($"Mode changed: {(shootMode ? "Shoot Mode" : "Move Mode")}");
+    }
+    
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mousePosition = GetMouseWorldPosition();
 
-            // Check if the click was on the tilemap
-            if (tileMap != null && IsClickOnTilemap(mousePosition, out CustomTile clickedTile))
+            if (shootMode)
+            {
+                ShootBullet(mousePosition);
+            }
+            else
             {
                 // Traverse logic: 
                 Debug.Log($"CanTraversePath = {CanTraversePath(transform.position, mousePosition)}");
@@ -47,18 +68,18 @@ public class PlayerController : MonoBehaviour
                     Debug.Log("This path is not traversable. Either game is lost or you need to find another way.");
                     SetAITarget(mousePosition);
                 }
-
-                // click tile logic
-                if (clickedTile != null)
+            
+                // Check if the click was on the tilemap
+                if (tileMap != null && IsClickOnTilemap(mousePosition, out CustomTile clickedTile))
                 {
-                    Debug.Log($"clickedTile.GetNeighborCountOfType(TileType.Water)): {clickedTile.HasNeighborOfType(0, TileType.Water)}");
-                    Vector3Int tilePos = tileMap.WorldToCell(mousePosition);
-                    clickedTile.DebugNeighbors(tilePos, tileMap);
+                    // click tile logic
+                    if (clickedTile != null)
+                    {
+                        Debug.Log($"clickedTile.GetNeighborCountOfType(TileType.Water)): {clickedTile.HasNeighborOfType(0, TileType.Water)}");
+                        Vector3Int tilePos = tileMap.WorldToCell(mousePosition);
+                        clickedTile.DebugNeighbors(tilePos, tileMap);
+                    }
                 }
-            }
-            else
-            {
-                ShootBullet(mousePosition);
             }
         }
     }
@@ -113,6 +134,9 @@ public class PlayerController : MonoBehaviour
 
     void ShootBullet(Vector3 mousePosition)
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+        
         GameObject bullet = Instantiate(bulletPrefab);
         Destroy(bullet, 5f);
 
