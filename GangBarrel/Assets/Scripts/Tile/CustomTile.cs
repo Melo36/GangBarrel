@@ -6,10 +6,14 @@ public enum TileType
     SmallRock,
     BigRock,
     CaveEntrance,
+    CaveInside,
+    Fog,
     Water,
     Plank,
     BarrelBeer,
-    BarrelNuclear
+    BarrelNuclear,
+    BarrelFog,
+    Rockfall, // rocks that fell down inside a cave - these are not passable
 }
 
 public enum TileDisplayMode
@@ -18,17 +22,18 @@ public enum TileDisplayMode
     GameObject
 }
 
-public class CustomLevelTile : TileBase
+[CreateAssetMenu(fileName = "New Custom Tile", menuName = "Tiles/CustomTile")]
+public class CustomTile : TileBase
 {
     [SerializeField] private TileType tileType;
-    [SerializeField] private TileDisplayMode displayMode;
-    [SerializeField] private Sprite sprite;
-    [SerializeField] private GameObject prefab;
+    [SerializeField] public TileDisplayMode displayMode;
+    [SerializeField] public Sprite sprite;
+    [SerializeField] public GameObject prefab;
     [SerializeField] private Vector3 objectOffset = Vector3.zero;
     [SerializeField] private Vector3 objectRotation = Vector3.zero;
     [SerializeField] private Vector3 objectScale = Vector3.one;
     
-    private CustomLevelTile[] neighbors = new CustomLevelTile[8];
+    private CustomTile[] neighbors = new CustomTile[8];
 
     public TileType TileType
     {
@@ -37,7 +42,7 @@ public class CustomLevelTile : TileBase
     }
 
     private GameObject spawnedObject;
-
+    
     public override void RefreshTile(Vector3Int position, ITilemap tilemap)
     {
         UpdateNeighbors(position, tilemap);
@@ -92,7 +97,7 @@ public class CustomLevelTile : TileBase
 
         for (int i = 0; i < 8; i++)
         {
-            neighbors[i] = tilemap.GetTile(neighborPositions[i]) as CustomLevelTile;
+            neighbors[i] = tilemap.GetTile(neighborPositions[i]) as CustomTile;
         }
     }
 
