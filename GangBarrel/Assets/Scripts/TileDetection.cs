@@ -15,14 +15,14 @@ public class TileDetection : MonoBehaviour
     void Update()
     {
         bool barrel = false;
+
         if (Input.GetMouseButtonDown(0))
         {
             // Cast a ray from the camera to the point clicked on the screen
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
             Vector3 direction = (Input.mousePosition - mainCamera.transform.position).normalized;
-            if (Physics.Raycast(mainCamera.transform.position, direction, out RaycastHit hit,
-                    Mathf.Infinity))
+            if (Physics.Raycast(mainCamera.transform.position, direction, out RaycastHit hit, Mathf.Infinity))
             {
                 Debug.Log("Hit something");
                 if (hit.transform.gameObject.CompareTag("Barrel"))
@@ -33,10 +33,9 @@ public class TileDetection : MonoBehaviour
 
             // Set a plane at y=0 to intersect with the ray (assuming the tilemap is on the XZ plane at y=0)
             Plane plane = new Plane(Vector3.up, Vector3.zero);
-            
+
             // Check if the ray hits the XZ plane
-            float distance;
-            if (plane.Raycast(ray, out distance))
+            if (plane.Raycast(ray, out float distance))
             {
                 // Get the point on the XZ plane where the ray hit
                 Vector3 worldPosition = ray.GetPoint(distance);
@@ -46,15 +45,21 @@ public class TileDetection : MonoBehaviour
 
                 // Check if a tile exists at this cell location
                 TileBase tileBase = tileMap.GetTile(location);
-                TileData data = new TileData();
-                tileBase.GetTileData(location,tileMap,ref data);
+
                 if (barrel)
                 {
                     Debug.Log("Barrel detected at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
                 }
-                else if (tileMap.GetTile(location) != null)
+                else if (tileBase != null)
                 {
-                    Debug.Log("Tile detected at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
+                    if (tileBase is CustomTile customTile)
+                    {
+                        Debug.Log($"The tile with type {customTile.TileType} has been hit at Position x: {location.x}, y: {location.y}, z: {location.z}");
+                    }
+                    else
+                    {
+                        Debug.Log("Tile detected at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
+                    }
                 }
                 else
                 {

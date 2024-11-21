@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public Tilemap tileMap; // Reference to your Tilemap component
 
     public float bulletSpeed = 15;
+
     
     public bool CanTraversePath(Vector3 start, Vector3 end)
     {
@@ -29,21 +30,30 @@ public class PlayerController : MonoBehaviour
         // Check if a path exists between the nodes
         return PathUtilities.IsPathPossible(startNode, endNode);
     }
-    
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mousePosition = GetMouseWorldPosition();
-            
+
             // Check if the click was on the tilemap
-            if (tileMap != null && IsClickOnTilemap(mousePosition))
+            if (tileMap != null && IsClickOnTilemap(mousePosition, out CustomTile clickedTile))
             {
+                // Traverse logic: 
                 Debug.Log($"CanTraversePath = {CanTraversePath(transform.position, mousePosition)}");
                 if (CanTraversePath(transform.position, mousePosition))
                 {
                     Debug.Log("This path is not traversable. Either game is lost or you need to find another way.");
-                    SetAITarget(mousePosition);   
+                    SetAITarget(mousePosition);
+                }
+
+                // click tile logic
+                if (clickedTile != null)
+                {
+                    Debug.Log($"clickedTile.GetNeighborCountOfType(TileType.Water)): {clickedTile.HasNeighborOfType(0, TileType.Water)}");
+                    Vector3Int tilePos = tileMap.WorldToCell(mousePosition);
+                    clickedTile.DebugNeighbors(tilePos, tileMap);
                 }
             }
             else
@@ -57,19 +67,35 @@ public class PlayerController : MonoBehaviour
     {
         Plane plane = new Plane(Vector3.up, 0);
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        
+
         if (plane.Raycast(ray, out float distance))
         {
             return ray.GetPoint(distance);
         }
-        
+
         return Vector3.zero;
     }
 
-    bool IsClickOnTilemap(Vector3 worldPosition)
+    bool IsClickOnTilemap(Vector3 worldPosition, out CustomTile clickedTile)
     {
+        clickedTile = null;
+
         Vector3Int cellPosition = tileMap.WorldToCell(worldPosition);
-        return tileMap.HasTile(cellPosition);
+
+        // Check if a tile exists at the clicked position
+        if (tileMap.HasTile(cellPosition))
+        {
+            TileBase tileBase = tileMap.GetTile(cellPosition);
+
+            // Check if the tile is of type CustomTile
+            if (tileBase is CustomTile customTile)
+            {
+                clickedTile = customTile;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void SetAITarget(Vector3 targetPosition)
@@ -77,10 +103,10 @@ public class PlayerController : MonoBehaviour
         // Create a temporary GameObject at the target position
         GameObject tempTarget = new GameObject("TempTarget");
         tempTarget.transform.position = targetPosition;
-        
+
         // Set the AI destination to the temporary object's transform
         aiDestinationSetter.target = tempTarget.transform;
-        
+
         // Optionally, destroy the temporary object after some time
         Destroy(tempTarget, 5f); // Adjust the time as needed
     }
@@ -89,10 +115,10 @@ public class PlayerController : MonoBehaviour
     {
         GameObject bullet = Instantiate(bulletPrefab);
         Destroy(bullet, 5f);
-        
+
         mousePosition = new Vector3(mousePosition.x, mousePosition.y, mousePosition.z);
         Vector3 direction = (mousePosition - transform.position).normalized;
-        direction.Set(direction.x, 0.01f,direction.z);
+        direction.Set(direction.x, 0.01f, direction.z);
         bullet.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
     }
 }

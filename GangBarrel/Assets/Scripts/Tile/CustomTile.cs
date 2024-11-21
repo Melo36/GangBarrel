@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Object = UnityEngine.Object;
 
 public enum TileType
 {
@@ -16,6 +19,18 @@ public enum TileType
     Rockfall, // rocks that fell down inside a cave - these are not passable
 }
 
+public enum NeighborDirection
+{
+    North,
+    NorthEast,
+    East,
+    SouthEast,
+    South,
+    SouthWest,
+    West,
+    NorthWest
+}
+
 public enum TileDisplayMode
 {
     Sprite,
@@ -27,14 +42,26 @@ public class CustomTile : TileBase
 {
     [SerializeField] private TileType tileType;
     [SerializeField] public TileDisplayMode displayMode;
-    [SerializeField] public Sprite sprite;
+    [SerializeField] private Sprite sprite;
     [SerializeField] public GameObject prefab;
     [SerializeField] private Vector3 objectOffset = Vector3.zero;
     [SerializeField] private Vector3 objectRotation = Vector3.zero;
     [SerializeField] private Vector3 objectScale = Vector3.one;
     
     private CustomTile[] neighbors = new CustomTile[8];
-
+    
+    private static readonly Dictionary<NeighborDirection, Vector3Int> NeighborOffsets = new Dictionary<NeighborDirection, Vector3Int>
+    {
+        { NeighborDirection.North, new Vector3Int(0, 1, 0) },
+        { NeighborDirection.NorthEast, new Vector3Int(1, 1, 0) },
+        { NeighborDirection.East, new Vector3Int(1, 0, 0) },
+        { NeighborDirection.SouthEast, new Vector3Int(1, -1, 0) },
+        { NeighborDirection.South, new Vector3Int(0, -1, 0) },
+        { NeighborDirection.SouthWest, new Vector3Int(-1, -1, 0) },
+        { NeighborDirection.West, new Vector3Int(-1, 0, 0) },
+        { NeighborDirection.NorthWest, new Vector3Int(-1, 1, 0) }
+    };
+    
     public TileType TileType
     {
         get => tileType;
@@ -42,15 +69,47 @@ public class CustomTile : TileBase
     }
 
     private GameObject spawnedObject;
-    
+
     public override void RefreshTile(Vector3Int position, ITilemap tilemap)
     {
-        UpdateNeighbors(position, tilemap);
-        base.RefreshTile(position, tilemap);
+        foreach (NeighborDirection direction in Enum.GetValues(typeof(NeighborDirection)))
+        {
+            Vector3Int neighborPos = position + NeighborOffsets[direction]; // Use dictionary to get the offset
+            if (tilemap.GetTile(neighborPos) is CustomTile)
+            {
+                tilemap.RefreshTile(neighborPos);
+            }
+        }
     }
 
+    public void DebugNeighbors(Vector3Int position, Tilemap tilemap)
+    {
+        UpdateNeighbors(position, tilemap); // Ensure neighbors are updated
+
+        Debug.Log($"Tile at {position} (Type: {TileType}) has the following neighbors:");
+
+        foreach (NeighborDirection direction in Enum.GetValues(typeof(NeighborDirection)))
+        {
+            int index = (int)direction;
+            if (neighbors[index] != null)
+            {
+                Debug.Log($"- {direction}: {neighbors[index].TileType}");
+            }
+            else
+            {
+                Debug.Log($"- {direction}: None");
+            }
+        }
+    }
+    
     public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
     {
+        base.GetTileData(position, tilemap, ref tileData);
+        
+        // Update neighbors when getting tile data
+        UpdateNeighbors(position, tilemap);
+
+        
         if (displayMode == TileDisplayMode.Sprite)
         {
             tileData.sprite = sprite;
@@ -72,40 +131,51 @@ public class CustomTile : TileBase
 
     public override bool StartUp(Vector3Int position, ITilemap tilemap, GameObject go)
     {
-        if (displayMode == TileDisplayMode.GameObject && prefab != null && go != null)
+        if (prefab != null && tilemap != null)
         {
-            go.transform.position += objectOffset;
-            go.transform.rotation = Quaternion.Euler(objectRotation);
-            go.transform.localScale = objectScale;
+            // Calculate the world position of the tile
+            Vector3 worldPosition = tilemap.GetComponent<Tilemap>().GetCellCenterWorld(position);
+
+            // Instantiate the prefab if it hasn't been instantiated yet
+            if (spawnedObject == null)
+            {
+                spawnedObject = Object.Instantiate(prefab, worldPosition, Quaternion.identity);
+                spawnedObject.name = $"{prefab.name}_at_{position}";
+            }
         }
+
         return base.StartUp(position, tilemap, go);
+    }
+    
+    public GameObject GetSpawnedObject()
+    {
+        return spawnedObject; // Provide access to the spawned prefab
     }
 
     private void UpdateNeighbors(Vector3Int position, ITilemap tilemap)
     {
-        Vector3Int[] neighborPositions = new Vector3Int[]
+        foreach(NeighborDirection direction in Enum.GetValues(typeof(NeighborDirection)))
         {
-            new Vector3Int(position.x, position.y + 1, position.z),    // N
-            new Vector3Int(position.x + 1, position.y + 1, position.z),// NE
-            new Vector3Int(position.x + 1, position.y, position.z),    // E
-            new Vector3Int(position.x + 1, position.y - 1, position.z),// SE
-            new Vector3Int(position.x, position.y - 1, position.z),    // S
-            new Vector3Int(position.x - 1, position.y - 1, position.z),// SW
-            new Vector3Int(position.x - 1, position.y, position.z),    // W
-            new Vector3Int(position.x - 1, position.y + 1, position.z) // NW
-        };
-
-        for (int i = 0; i < 8; i++)
-        {
-            neighbors[i] = tilemap.GetTile(neighborPositions[i]) as CustomTile;
+            Vector3Int neighborPos = position + NeighborOffsets[direction];
+            neighbors[(int)direction] = tilemap.GetTile(neighborPos) as CustomTile;
         }
     }
 
-    public bool HasNeighborOfType(int direction, TileType type)
+    public bool HasNeighborOfType(NeighborDirection direction, TileType type)
     {
-        return neighbors[direction] != null && neighbors[direction].TileType == type;
+        int index = (int)direction;
+
+        if (index < 0 || index >= neighbors.Length)
+            return false;
+
+        return neighbors[index]?.TileType == type;
     }
 
+    public bool HasAnyNeighborOfType(TileType type)
+    {
+        return GetNeighborCountOfType(type) > 0;
+    }   
+    
     public int GetNeighborCountOfType(TileType type)
     {
         int count = 0;
