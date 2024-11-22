@@ -137,7 +137,8 @@ public class PlayerController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         
-        GameObject bullet = Instantiate(bulletPrefab);
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Physics.IgnoreCollision(bullet.GetComponent<Collider>(), GetComponentInChildren<Collider>());
         Destroy(bullet, 5f);
 
         mousePosition = new Vector3(mousePosition.x, mousePosition.y, mousePosition.z);
