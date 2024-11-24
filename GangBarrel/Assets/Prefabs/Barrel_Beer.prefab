@@ -106,3 +106,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explosion: {fileID: 7393302188825938704, guid: e92e4391902104deead6bafd7ccd9d44, type: 3}
+  explosionRadius: {fileID: 3013146143804530087, guid: 3a69b773bb0804031b06b4373116b0d2, type: 3}
