@@ -260,14 +260,14 @@ public class LevelEditorWindow : EditorWindow
                 
                 // Adjust the position to include the Y offset
                 Vector3 cellCenter = tilemap.GetCellCenterWorld(cellPosition);
-                newObject.transform.position = new Vector3(cellCenter.x, cellCenter.y + 0.5f, cellCenter.z);
+                newObject.transform.position = new Vector3(cellCenter.x, cellCenter.y, cellCenter.z);
                 
                 Undo.RegisterCreatedObjectUndo(newObject, "Place Object");
 
                 // Optionally associate a default CustomTile (e.g., an empty CustomTile)
-                CustomTile defaultTile = ScriptableObject.CreateInstance<CustomTile>();
-                defaultTile.TileType = TileType.Water; // Example: Assign a type based on object
-                tilemap.SetTile(cellPosition, defaultTile);
+                //CustomTile defaultTile = ScriptableObject.CreateInstance<CustomTile>();
+                //defaultTile.TileType = TileType.Water; // Example: Assign a type based on object
+                //tilemap.SetTile(cellPosition, defaultTile);
             }
 
             e.Use();

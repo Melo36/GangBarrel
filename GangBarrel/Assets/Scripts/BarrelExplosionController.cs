@@ -9,12 +9,17 @@ public class BarrelExplosionController : MonoBehaviour
     public GameObject explosionRadius;
     private void OnCollisionEnter(Collision other)
     {
+        // Only a barrel gets destroyed by a bullet
         if (other.gameObject.CompareTag("Bullet") || other.gameObject.CompareTag("ExplosionTrigger"))
         {
-            Instantiate(explosion, transform.position, Quaternion.identity);
-            Instantiate(explosionRadius, transform.position, Quaternion.identity);
+            ParticleSystem particle = Instantiate(explosion, transform.position, Quaternion.identity);
+            GameObject expl = Instantiate(explosionRadius, transform.position, Quaternion.identity);
+            
+            // Destroy Objects
             Destroy(gameObject);
             Destroy(other.gameObject);
+            Destroy(expl,1);
+            Destroy(particle, particle.main.duration);
         }
     }
 }
