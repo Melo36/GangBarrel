@@ -8,6 +8,7 @@ TagManager:
   - GroundPlane
   - Bullet
   - ExplosionTrigger
+  - PickUpPlank
   layers:
   - Default
   - TransparentFX

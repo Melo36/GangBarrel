@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     public AIDestinationSetter aiDestinationSetter;
     public Tilemap tileMap; // Reference to your Tilemap component
 
+    public Inventory inventory;
+    
     public float bulletSpeed = 15;
 
     private bool shootMode = true; // Start in shooting mode
@@ -51,6 +53,9 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+        
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mousePosition = GetMouseWorldPosition();
@@ -116,7 +121,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        return false;
+        return true;
     }
 
     void SetAITarget(Vector3 targetPosition)
@@ -134,16 +139,41 @@ public class PlayerController : MonoBehaviour
 
     void ShootBullet(Vector3 mousePosition)
     {
-        if (EventSystem.current.IsPointerOverGameObject())
-            return;
+        var bullets = inventory.items.FindAll(item => item.itemType == Item.ItemType.Bullet);
+    
+        if (bullets.Count > 0)
+        {
+            var bulletItem = bullets[0];
+            var bulletIndex = inventory.items.IndexOf(bulletItem);
         
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-        Physics.IgnoreCollision(bullet.GetComponent<Collider>(), GetComponentInChildren<Collider>());
-        Destroy(bullet, 5f);
+            GameObject bulletObject = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+            Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
+            Destroy(bulletObject, 5f);
 
-        mousePosition = new Vector3(mousePosition.x, mousePosition.y, mousePosition.z);
-        Vector3 direction = (mousePosition - transform.position).normalized;
-        direction.Set(direction.x, 0.01f, direction.z);
-        bullet.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
+            Vector3 direction = (mousePosition - transform.position).normalized;
+            direction.Set(direction.x, 0.01f, direction.z);
+            bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
+
+            inventory.items.RemoveAt(bulletIndex);
+            Destroy(inventory.itemsUI[bulletIndex]);
+            inventory.itemsUI.RemoveAt(bulletIndex);
+        }
     }
+
+    public void PlaceItem(Item.ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case Item.ItemType.Barrel:
+                Debug.Log("Place Barrel");
+                break;
+            case Item.ItemType.Plank:
+                Debug.Log("Place Plank");
+                break;
+            default:
+                Debug.LogError("This ItemType is not defined.");
+                break;
+        }
+    }
+    
 }

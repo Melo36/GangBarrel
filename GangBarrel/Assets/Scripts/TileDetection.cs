@@ -48,22 +48,22 @@ public class TileDetection : MonoBehaviour
 
                 if (barrel)
                 {
-                    Debug.Log("Barrel detected at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
+                    //Debug.Log("Barrel detected at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
                 }
                 else if (tileBase != null)
                 {
                     if (tileBase is CustomTile customTile)
                     {
-                        Debug.Log($"The tile with type {customTile.TileType} has been hit at Position x: {location.x}, y: {location.y}, z: {location.z}");
+                        //Debug.Log($"The tile with type {customTile.TileType} has been hit at Position x: {location.x}, y: {location.y}, z: {location.z}");
                     }
                     else
                     {
-                        Debug.Log("Tile detected at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
+                        //Debug.Log("Tile detected at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
                     }
                 }
                 else
                 {
-                    Debug.Log("No tile at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
+                   //Debug.Log("No tile at Position x: " + location.x + " y: " + location.y + " z: " + location.z);
                 }
             }
         }

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51a126e5da4f4c64a91ec7ed06f64a26, type: 3}
+  m_Name: Barrel
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 21300000, guid: 5f127d8ad801a0845af21cd87f5acf5d, type: 3}
+  itemType: 0
+  name: Barrel
+  description: This is an explosive Barrel, which will help you to destroy structures
+    to find your way to the gems!
+  itemPrefab: {fileID: 7178866115200830392, guid: f376c79284fc3f849a97ac2af121b8da, type: 3}
