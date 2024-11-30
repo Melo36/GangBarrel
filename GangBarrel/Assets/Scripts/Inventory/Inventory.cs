@@ -13,6 +13,8 @@ public class Inventory : MonoBehaviour
     // objects displayed in the ui
     public List<GameObject> itemsUI;
 
+    public PlayerController playerController;
+
     /// <summary>
     /// Use the item.
     /// </summary>
@@ -64,6 +66,12 @@ public class Inventory : MonoBehaviour
         // Instantiate the prefab and set it as a child of the inventory content parent
         GameObject newItem = Instantiate(item.itemPrefab, inventoryContentParent.transform);
 
+        if (item.itemType != Item.ItemType.Bullet)
+        {
+            var btn = newItem.GetComponent<Button>();
+            btn.onClick.AddListener(() => playerController.StartPlankPlacement());
+        }
+        
         // Get the components directly from the children
         Image image = newItem.transform.GetChild(0).GetComponent<Image>();
         TextMeshProUGUI text = newItem.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
@@ -98,6 +106,31 @@ public class Inventory : MonoBehaviour
         for (int i = 0; i < itemsUI.Count; i++)
         {
             itemsUI[i].transform.SetSiblingIndex(i);
+        }
+    }
+
+    public void RemoveItem(Item item)
+    {
+        // Find the index of the item in the inventory
+        int index = items.IndexOf(item);
+
+        if (index >= 0)
+        {
+            // Remove the item from the inventory list
+            items.RemoveAt(index);
+
+            // Destroy the corresponding UI object
+            Destroy(itemsUI[index]);
+
+            // Remove the UI object from the itemsUI list
+            itemsUI.RemoveAt(index);
+
+            // Debugging confirmation
+            Debug.Log($"Removed {item.name} from inventory.");
+        }
+        else
+        {
+            Debug.LogWarning("Item not found in inventory. Cannot remove.");
         }
     }
 

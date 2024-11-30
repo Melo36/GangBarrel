@@ -4,7 +4,7 @@ public class Blinking : MonoBehaviour
 {
     private Renderer objectRenderer;
     private float nextBlinkTime;
-    [SerializeField] private float blinkInterval = 0.5f;
+    [SerializeField] private float blinkInterval = 0.25f;
 
     void Start()
     {
@@ -23,7 +23,6 @@ public class Blinking : MonoBehaviour
 
     void OnDestroy()
     {
-        // Ensure the object is visible when destroyed
         if (objectRenderer != null)
         {
             objectRenderer.enabled = true;
