@@ -14,7 +14,7 @@ public class RockExplosionController : MonoBehaviour
         directionHandler = GetComponent<BarrelDirectionHandler>();
     }
     
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
         // Only a barrel gets destroyed by a bullet
         if (other.gameObject.CompareTag("ExplosionTrigger"))
@@ -34,7 +34,7 @@ public class RockExplosionController : MonoBehaviour
             
             // Destroy Objects
             Destroy(gameObject);
-            Destroy(other.gameObject);
+            //Destroy(other.gameObject);
             //Destroy(expl,1);
             Destroy(particle, particle.main.duration);
         }
