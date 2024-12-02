@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Inventory;
 using Pathfinding;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 public class PlayerController : MonoBehaviour
@@ -14,7 +16,7 @@ public class PlayerController : MonoBehaviour
     public Camera mainCamera;
     public AIDestinationSetter aiDestinationSetter;
     public Tilemap tileMap;
-    public Inventory inventory;
+    public InventoryManager inventoryManager;
     public GameObject worldSpaceCanvas;
 
     [Header("UI")]
@@ -108,7 +110,7 @@ public class PlayerController : MonoBehaviour
 
     private void ShootBullet(Vector3 targetPosition)
     {
-        var bulletItem = inventory.items.FirstOrDefault(item => item.itemType == Item.ItemType.Bullet);
+        var bulletItem = inventoryManager.items.FirstOrDefault(item => item.itemType == Item.ItemType.Bullet);
 
         if (bulletItem != null)
         {
@@ -120,7 +122,7 @@ public class PlayerController : MonoBehaviour
             direction.y = 0.01f;
             bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
 
-            inventory.RemoveItem(bulletItem);
+            inventoryManager.RemoveItem(bulletItem);
             Debug.Log("Bullet shot successfully!");
         }
         else
@@ -172,14 +174,22 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator WaitForTargetReached(GameObject tempTarget)
     {
-        // Wait until the player is close enough to the target
-        while (Vector3.Distance(transform.position, tempTarget.transform.position) > 0.5f)
+        while (tempTarget != null && Vector3.Distance(transform.position, tempTarget.transform.position) > 0.5f)
         {
             yield return null; // Wait for the next frame
         }
 
-        // Destroy the temporary target object
-        Destroy(tempTarget);
+        // Safely destroy the temporary target object if it still exists
+        if (tempTarget != null)
+        {
+            Destroy(tempTarget);
+        }
+
+        // Clear the reference in the AI Destination Setter
+        if (aiDestinationSetter.target != null && aiDestinationSetter.target.gameObject == tempTarget)
+        {
+            aiDestinationSetter.target = null;
+        }
 
         // Destroy the distance text instance
         if (distanceTextInstance != null)
@@ -200,16 +210,24 @@ public class PlayerController : MonoBehaviour
     
     private void SetAITarget(Vector3 targetPosition)
     {
-        // Destroy any previous temporary target if it exists
-        if (aiDestinationSetter.target != null && aiDestinationSetter.target.gameObject.name == "TempTarget")
+        // Safely destroy the previous target if it exists
+        if (aiDestinationSetter.target != null)
         {
-            Destroy(aiDestinationSetter.target.gameObject);
+            // Check if the target still exists in the scene
+            if (aiDestinationSetter.target.gameObject != null && aiDestinationSetter.target.gameObject.name == "TempTarget")
+            {
+                Destroy(aiDestinationSetter.target.gameObject);
+            }
+
+            // Clear the reference to avoid accessing a destroyed object
+            aiDestinationSetter.target = null;
         }
 
         // Create a new temporary target object
         GameObject tempTarget = new GameObject("TempTarget");
         tempTarget.transform.position = targetPosition;
 
+        // Set the new target for AI
         aiDestinationSetter.target = tempTarget.transform;
 
         // Start the coroutine to wait for the target to be reached
@@ -220,8 +238,6 @@ public class PlayerController : MonoBehaviour
             distanceTextInstance.text += " (Locked)";
         }
     }
-
-
 
     private float CalculatePathDistance(Vector3 start, Vector3 end)
     {
@@ -310,14 +326,15 @@ public class PlayerController : MonoBehaviour
         // Place the plank in the game world
         Destroy(plankInstance.GetComponent<Blinking>());
         plankInstance.transform.position = tilemapGrid.GetCellCenterWorld(gridCell);
+        plankInstance.transform.position -= new Vector3(0, 0.5f, 0f);
         plankInstance = null;
         isPlacing = false;
 
-        var plank = inventory.items.FirstOrDefault(item => item.itemType == Item.ItemType.Plank);
+        var plank = inventoryManager.items.FirstOrDefault(item => item.itemType == Item.ItemType.Plank);
         
         // Update the graph to make the cell walkable
         UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell));
-        inventory.RemoveItem(plank);
+        inventoryManager.RemoveItem(plank);
 
         Debug.Log("Plank placed successfully!");
     }
@@ -346,9 +363,7 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Graph updated at position: " + position);
     }
-
-
-
+    
     private void CancelPlankPlacement()
     {
         if (plankInstance) Destroy(plankInstance);
