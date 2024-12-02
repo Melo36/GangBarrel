@@ -91,9 +91,20 @@ public class PlayerController : MonoBehaviour
         if (CanTraversePath(transform.position, mousePosition))
         {
             distanceFrozen = true;
+
+            // Clear any existing distance text
+            if (distanceTextInstance != null)
+            {
+                Destroy(distanceTextInstance.gameObject);
+                distanceTextInstance = null;
+            }
+
+            // Set a new AI target and display updated distance text
             SetAITarget(mousePosition);
+            UpdateDistanceText(mousePosition);
         }
     }
+
 
     private void ShootBullet(Vector3 targetPosition)
     {
@@ -189,6 +200,13 @@ public class PlayerController : MonoBehaviour
     
     private void SetAITarget(Vector3 targetPosition)
     {
+        // Destroy any previous temporary target if it exists
+        if (aiDestinationSetter.target != null && aiDestinationSetter.target.gameObject.name == "TempTarget")
+        {
+            Destroy(aiDestinationSetter.target.gameObject);
+        }
+
+        // Create a new temporary target object
         GameObject tempTarget = new GameObject("TempTarget");
         tempTarget.transform.position = targetPosition;
 
@@ -202,6 +220,7 @@ public class PlayerController : MonoBehaviour
             distanceTextInstance.text += " (Locked)";
         }
     }
+
 
 
     private float CalculatePathDistance(Vector3 start, Vector3 end)
@@ -294,8 +313,11 @@ public class PlayerController : MonoBehaviour
         plankInstance = null;
         isPlacing = false;
 
+        var plank = inventory.items.FirstOrDefault(item => item.itemType == Item.ItemType.Plank);
+        
         // Update the graph to make the cell walkable
         UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell));
+        inventory.RemoveItem(plank);
 
         Debug.Log("Plank placed successfully!");
     }
