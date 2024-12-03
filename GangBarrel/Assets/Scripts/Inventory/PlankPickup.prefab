@@ -69,6 +69,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemType: 2
   item: {fileID: 11400000, guid: 8d39712ce41fab644b26d3a89496bde6, type: 2}
+  buttonToPress: E
 --- !u!1 &6137091145403990873
 GameObject:
   m_ObjectHideFlags: 0
@@ -130,7 +131,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 63cff2a396602c3489780c5a003b90db, type: 2}
+  - {fileID: 2100000, guid: b95c8ecdb6647ac4982d67d98d9ba1db, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
