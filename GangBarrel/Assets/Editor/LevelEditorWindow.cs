@@ -236,6 +236,7 @@ public class LevelEditorWindow : EditorWindow
             Vector3 worldPosition = ray.GetPoint(distance);
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
 
+            // if a tile is selected from the tile palette
             if (selectedTileIndex >= 0 && selectedTileIndex < tilePalette.Length && tilePalette[selectedTileIndex] != null)
             {
                 Undo.RecordObject(tilemap, "Place Tile");
@@ -252,7 +253,7 @@ public class LevelEditorWindow : EditorWindow
                     
                     Undo.RegisterCreatedObjectUndo(newObject, "Place Prefab");
                 }
-            }
+            } // if an object is selected from the object palette
             else if (selectedObjectIndex >= 0 && selectedObjectIndex < objectPalette.Length && objectPalette[selectedObjectIndex] != null)
             {
                 // Directly place an object from the palette
@@ -265,8 +266,9 @@ public class LevelEditorWindow : EditorWindow
                 Undo.RegisterCreatedObjectUndo(newObject, "Place Object");
 
                 // Optionally associate a default CustomTile (e.g., an empty CustomTile)
+                
                 CustomTile defaultTile = ScriptableObject.CreateInstance<CustomTile>();
-                defaultTile.TileType = TileType.Water; // Example: Assign a type based on object
+                defaultTile.TileType = defaultTile.TileType; // Example: Assign a type based on object
                 tilemap.SetTile(cellPosition, defaultTile);
             }
 

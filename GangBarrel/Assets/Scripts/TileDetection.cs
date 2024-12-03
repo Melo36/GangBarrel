@@ -55,6 +55,7 @@ public class TileDetection : MonoBehaviour
                     if (tileBase is CustomTile customTile)
                     {
                         Debug.Log($"The tile with type {customTile.TileType} has been hit at Position x: {location.x}, y: {location.y}, z: {location.z}");
+                        customTile.DebugNeighbors(location, tileMap);
                     }
                     else
                     {
