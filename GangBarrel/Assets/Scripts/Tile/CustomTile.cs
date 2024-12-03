@@ -86,18 +86,18 @@ public class CustomTile : TileBase
     {
         UpdateNeighbors(position, tilemap); // Ensure neighbors are updated
 
-        Debug.Log($"Tile at {position} (Type: {TileType}) has the following neighbors:");
+       // Debug.Log($"Tile at {position} (Type: {TileType}) has the following neighbors:");
 
         foreach (NeighborDirection direction in Enum.GetValues(typeof(NeighborDirection)))
         {
             int index = (int)direction;
             if (neighbors[index] != null)
             {
-                Debug.Log($"- {direction}: {neighbors[index].TileType}");
+                //Debug.Log($"- {direction}: {neighbors[index].TileType}");
             }
             else
             {
-                Debug.Log($"- {direction}: None");
+                //Debug.Log($"- {direction}: None");
             }
         }
     }

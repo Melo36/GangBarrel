@@ -15,7 +15,7 @@ MonoBehaviour:
   tileType: 5
   displayMode: 1
   sprite: {fileID: 0}
-  prefab: {fileID: 7502242491501236174, guid: c22af2e3bcd2bee44bcdca3cd16f2187, type: 3}
+  prefab: {fileID: 7502242491501236174, guid: daac8421cb8e4e14b9e0fe10657cb65e, type: 3}
   objectOffset: {x: 0, y: 1, z: 0}
   objectRotation: {x: 0, y: 0, z: 0}
   objectScale: {x: 1, y: 1, z: 1}

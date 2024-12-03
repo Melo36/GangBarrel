@@ -236,7 +236,6 @@ public class LevelEditorWindow : EditorWindow
             Vector3 worldPosition = ray.GetPoint(distance);
             Vector3Int cellPosition = tilemap.WorldToCell(worldPosition);
 
-            // if a tile is selected from the tile palette
             if (selectedTileIndex >= 0 && selectedTileIndex < tilePalette.Length && tilePalette[selectedTileIndex] != null)
             {
                 Undo.RecordObject(tilemap, "Place Tile");
@@ -253,7 +252,7 @@ public class LevelEditorWindow : EditorWindow
                     
                     Undo.RegisterCreatedObjectUndo(newObject, "Place Prefab");
                 }
-            } // if an object is selected from the object palette
+            }
             else if (selectedObjectIndex >= 0 && selectedObjectIndex < objectPalette.Length && objectPalette[selectedObjectIndex] != null)
             {
                 // Directly place an object from the palette
@@ -261,15 +260,14 @@ public class LevelEditorWindow : EditorWindow
                 
                 // Adjust the position to include the Y offset
                 Vector3 cellCenter = tilemap.GetCellCenterWorld(cellPosition);
-                newObject.transform.position = new Vector3(cellCenter.x, cellCenter.y + 0.5f, cellCenter.z);
+                newObject.transform.position = new Vector3(cellCenter.x, cellCenter.y, cellCenter.z);
                 
                 Undo.RegisterCreatedObjectUndo(newObject, "Place Object");
 
                 // Optionally associate a default CustomTile (e.g., an empty CustomTile)
-                
-                CustomTile defaultTile = ScriptableObject.CreateInstance<CustomTile>();
-                defaultTile.TileType = defaultTile.TileType; // Example: Assign a type based on object
-                tilemap.SetTile(cellPosition, defaultTile);
+                //CustomTile defaultTile = ScriptableObject.CreateInstance<CustomTile>();
+                //defaultTile.TileType = TileType.Water; // Example: Assign a type based on object
+                //tilemap.SetTile(cellPosition, defaultTile);
             }
 
             e.Use();

@@ -7,6 +7,8 @@ TagManager:
   - Barrel
   - GroundPlane
   - Bullet
+  - ExplosionTrigger
+  - PickUpPlank
   layers:
   - Default
   - TransparentFX
@@ -17,7 +19,7 @@ TagManager:
   - Player
   - NPC
   - Obstacle
-  - 
+  - Plank
   - 
   - 
   - 

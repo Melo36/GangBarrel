@@ -6,13 +6,32 @@ using UnityEngine;
 public class BarrelExplosionController : MonoBehaviour
 {
     public ParticleSystem explosion;
-    private void OnCollisionEnter(Collision other)
+    public GameObject explosionRadius;
+    //private BarrelDirectionHandler directionHandler;
+    
+    /*
+    private void Start()
     {
-        if (other.gameObject.CompareTag("Bullet"))
+        directionHandler = GetComponent<BarrelDirectionHandler>();
+    }
+    */
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Bullet") || other.gameObject.CompareTag("ExplosionTrigger"))
         {
-            Instantiate(explosion, transform.position, Quaternion.identity);
+            ParticleSystem particle = Instantiate(explosion, transform.position, Quaternion.identity);
+            
+            // Instantiate with the correct rotation based on player position
+            //Quaternion explosionRotation = directionHandler.GetExplosionRotation();
+            GameObject expl = Instantiate(explosionRadius, transform.position, Quaternion.identity);
+            //Debug.Log($"explosionRotation = {explosionRotation}");
+            
+            // Destroy Objects
             Destroy(gameObject);
             Destroy(other.gameObject);
+            //Destroy(expl, 1);
+            Destroy(particle, particle.main.duration);
         }
     }
 }
