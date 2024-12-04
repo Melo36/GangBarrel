@@ -68,6 +68,7 @@ namespace Inventory
         private GameObject CreateInventoryUI(Item item)
         {
             // Instantiate the prefab and set it as a child of the inventory content parent
+            Debug.Log("Inventar ist " + inventoryContentParent);
             GameObject newItem = Instantiate(item.itemPrefab, inventoryContentParent.transform);
 
             if (item.itemType != Item.ItemType.Bullet)
