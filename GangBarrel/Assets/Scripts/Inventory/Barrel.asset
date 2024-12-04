@@ -16,5 +16,5 @@ MonoBehaviour:
   itemType: 0
   name: Barrel
   description: This is an explosive Barrel, which will help you to destroy structures
-    to find your way to the gems!
+    to find your way to the gems! You can shoot it or pick it up.
   itemPrefab: {fileID: 7178866115200830392, guid: f376c79284fc3f849a97ac2af121b8da, type: 3}

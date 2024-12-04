@@ -1,12 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Inventory;
 using Pathfinding;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 public class PlayerController : MonoBehaviour
@@ -18,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public Tilemap tileMap;
     public InventoryManager inventoryManager;
     public GameObject worldSpaceCanvas;
+    public RoundManager roundManager;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI buttonTextMesh;
@@ -26,6 +25,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Settings")]
     public float bulletSpeed = 15;
+    public float maxMovementRange = 5f;
 
     [Header("Plank Placement")]
     [SerializeField] private GameObject plankPrefab;
@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
     private bool shootMode = true;
     private bool isPlacing = false;
     private bool distanceFrozen = false;
+    private bool canMove = true;
 
     private TextMeshProUGUI distanceTextInstance;
     private GameObject plankInstance;
@@ -43,14 +44,37 @@ public class PlayerController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
+        /*
         if (isPlacing)
         {
             UpdatePlacement();
         }
+        */
 
         HandleMouseInput();
     }
 
+    #region RoundBased-stuff
+
+    public void EnableMovement(float rangeLimit)
+    {
+        // Enable player movement with the specified range limit
+        maxMovementRange = rangeLimit;
+    }
+
+    public void StartTurn()
+    {
+        canMove = true;
+    }
+
+    public void EndTurn()
+    {
+        canMove = false;
+        roundManager.EndPlayerTurn();
+    }
+
+    #endregion
+    
     private void HandleMouseInput()
     {
         if (Input.GetMouseButtonDown(0))
@@ -296,6 +320,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /*
     private void UpdatePlacement()
     {
         if (!plankInstance) return;
@@ -371,4 +396,5 @@ public class PlayerController : MonoBehaviour
         isPlacing = false;
         Debug.Log("Plank placement canceled.");
     }
+    */
 }

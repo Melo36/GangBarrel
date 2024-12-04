@@ -3,6 +3,7 @@ using System.Linq;
 using TMPro;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Inventory
@@ -16,6 +17,7 @@ namespace Inventory
         public List<GameObject> itemsUI;
 
         public PlayerController playerController;
+        [FormerlySerializedAs("itemPlacement")] public ItemUsage itemUsage;
 
         /// <summary>
         /// Use the item.
@@ -71,7 +73,7 @@ namespace Inventory
             if (item.itemType != Item.ItemType.Bullet)
             {
                 var btn = newItem.GetComponent<Button>();
-                btn.onClick.AddListener(() => playerController.StartPlankPlacement());
+                btn.onClick.AddListener(() => itemUsage.StartPlankPlacement());
             }
         
             // Get the components directly from the children

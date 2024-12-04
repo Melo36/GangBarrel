@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UniRx;
 using TMPro;
@@ -15,6 +16,13 @@ public class Collectible : MonoBehaviour
 
     private bool playerInRange = false;
 
+    private PromptManager promptManager;
+
+    private void Start()
+    {
+        promptManager = FindObjectOfType<PromptManager>();
+    }
+
     void Update()
     {
         if (playerInRange && Input.GetKeyDown(KeyCode.E))
@@ -31,7 +39,8 @@ public class Collectible : MonoBehaviour
             playerInRange = true;
 
             // Display the prompt
-            PromptManager.ShowInteractionPrompt($"Press E to pick up {item.itemType}.");
+            promptManager.ShowInteractionPrompt($"Press E to pick up {item.itemType}.");
+            promptManager.SetDescriptionTextForItem(item);
         }
     }
 
@@ -42,7 +51,7 @@ public class Collectible : MonoBehaviour
             Debug.Log("Player exited collectible range");
             playerInRange = false;
 
-            PromptManager.StopInteractionPrompt();
+            promptManager.StopInteractionPrompt();
         }
     }
 
@@ -53,6 +62,6 @@ public class Collectible : MonoBehaviour
         Destroy(gameObject);
 
         // Hide the prompt just in case
-        PromptManager.StopInteractionPrompt();
+        promptManager.StopInteractionPrompt();
     }
 }
