@@ -106,18 +106,6 @@ public class ItemUsage : MonoBehaviour
 
         var plank = inventoryManager.items.FirstOrDefault(item => item.itemType == Item.ItemType.Plank);
         
-        TileBase baseTile = tilemapGrid.GetTile(gridCell);
-        CustomTile customTile = baseTile as CustomTile;
-
-        if (customTile != null)
-        {
-            Debug.Log("Successfully casted to CustomTile.");
-        }
-        else
-        {
-            Debug.Log("Tile is not of type CustomTile.");
-        }
-        
         // Update the graph to make the cell walkable
         UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell), true);
         inventoryManager.RemoveItem(plank);
@@ -125,7 +113,7 @@ public class ItemUsage : MonoBehaviour
         Debug.Log("Plank placed successfully!");
     }
     
-    private void UpdateGraphAtPosition(Vector3 position, bool walkable)
+    public void UpdateGraphAtPosition(Vector3 position, bool walkable)
     {
         // Define the bounds of the area to update
         Bounds bounds = new Bounds(position, new Vector3(1, 2, 1)); // Adjust size as needed
@@ -158,7 +146,7 @@ public class ItemUsage : MonoBehaviour
         Debug.Log("Plank placement canceled.");
     }
  
-    private Vector3 GetMouseWorldPosition()
+    public Vector3 GetMouseWorldPosition()
     {
         Plane plane = new Plane(Vector3.up, Vector3.zero);
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
