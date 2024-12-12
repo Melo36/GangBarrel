@@ -68,13 +68,12 @@ namespace Inventory
         private GameObject CreateInventoryUI(Item item)
         {
             // Instantiate the prefab and set it as a child of the inventory content parent
-            Debug.Log("Inventar ist " + inventoryContentParent);
-            GameObject newItem = Instantiate(item.itemPrefab, inventoryContentParent.transform);
+            GameObject newItem = Instantiate(item.uiItemPrefab, inventoryContentParent.transform);
 
             if (item.itemType != Item.ItemType.Bullet)
             {
                 var btn = newItem.GetComponent<Button>();
-                btn.onClick.AddListener(() => itemUsage.StartPlankPlacement());
+                btn.onClick.AddListener(() => itemUsage.StartItemPlacement(item));
             }
         
             // Get the components directly from the children

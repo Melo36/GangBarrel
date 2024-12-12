@@ -1,6 +1,4 @@
-using UnityEditor;
 using UnityEngine;
-
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class Item : ScriptableObject
@@ -17,7 +15,10 @@ public class Item : ScriptableObject
     public string description;
     
     // UI-object to be instantiated
-    public GameObject itemPrefab;
+    public GameObject uiItemPrefab;
     
+    // 3D GameObject prefab (which can be placed)
+    public GameObject itemPrefab;
+
 }
 

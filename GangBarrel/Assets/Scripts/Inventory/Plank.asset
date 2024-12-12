@@ -16,4 +16,5 @@ MonoBehaviour:
   itemType: 2
   name: Plank
   description: This is a plank, you can use them to traverse water tiles.
-  itemPrefab: {fileID: 7178866115200830392, guid: f376c79284fc3f849a97ac2af121b8da, type: 3}
+  uiItemPrefab: {fileID: 7178866115200830392, guid: f376c79284fc3f849a97ac2af121b8da, type: 3}
+  itemPrefab: {fileID: 418028684842307621, guid: 22e2cad4ebd0a524686bc5e30088826b, type: 3}

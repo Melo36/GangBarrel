@@ -30,6 +30,8 @@ public class ItemUsage : MonoBehaviour
     
     private bool isPlacing;
 
+    private Item placingItem;
+    
     private void Update()
     {
         if (isPlacing)
@@ -66,21 +68,34 @@ public class ItemUsage : MonoBehaviour
         snappedPosition.y = plankInstance.transform.position.y;
         plankInstance.transform.position = snappedPosition;
 
-        if (Input.GetKeyDown(KeyCode.Escape)) CancelPlankPlacement();
+        if (Input.GetKeyDown(KeyCode.Escape)) CancelItemPlacement();
 
-        if (Input.GetMouseButtonDown(0)) PlacePlank(gridCell);
+        if (Input.GetMouseButtonDown(0)) PlaceItem(gridCell);
     }
 
-    public void StartPlankPlacement()
+    /// <summary>
+    /// For items that can be placed, this function makes sense.
+    ///
+    /// (The (bullet) shooting is implemented in the PlayerController, even though it is an item.)
+    /// 
+    /// </summary>
+    /// <param name="item"></param>
+    public void StartItemPlacement(Item item)
     {
         if (isPlacing) return;
 
+        if (item.itemType == Item.ItemType.Bullet)
+            return;
+
+        var placementPrefab = item.itemPrefab;
+        placingItem = item;
+        
         isPlacing = true;
-        plankInstance = Instantiate(plankPrefab);
+        plankInstance = Instantiate(placementPrefab);
         plankInstance.AddComponent<Blinking>();
     }
 
-    private void PlacePlank(Vector3Int gridCell)
+    private void PlaceItem(Vector3Int gridCell)
     {
         // Place the plank in the game world
         Destroy(plankInstance.GetComponent<Blinking>());
@@ -91,14 +106,26 @@ public class ItemUsage : MonoBehaviour
 
         var plank = inventoryManager.items.FirstOrDefault(item => item.itemType == Item.ItemType.Plank);
         
+        TileBase baseTile = tilemapGrid.GetTile(gridCell);
+        CustomTile customTile = baseTile as CustomTile;
+
+        if (customTile != null)
+        {
+            Debug.Log("Successfully casted to CustomTile.");
+        }
+        else
+        {
+            Debug.Log("Tile is not of type CustomTile.");
+        }
+        
         // Update the graph to make the cell walkable
-        UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell));
+        UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell), true);
         inventoryManager.RemoveItem(plank);
 
         Debug.Log("Plank placed successfully!");
     }
     
-    private void UpdateGraphAtPosition(Vector3 position)
+    private void UpdateGraphAtPosition(Vector3 position, bool walkable)
     {
         // Define the bounds of the area to update
         Bounds bounds = new Bounds(position, new Vector3(1, 2, 1)); // Adjust size as needed
@@ -107,8 +134,8 @@ public class ItemUsage : MonoBehaviour
         GraphUpdateObject guo = new GraphUpdateObject(bounds);
 
         // Set the GUO to modify the walkability
-        guo.modifyWalkability = true;
-        guo.setWalkability = true;
+        guo.modifyWalkability = walkable;
+        guo.setWalkability = walkable;
 
         // Optionally, you can set the tag or penalty if needed
         // guo.tag = 1; // For example, set a tag for the plank area
@@ -123,7 +150,7 @@ public class ItemUsage : MonoBehaviour
         Debug.Log("Graph updated at position: " + position);
     }
     
-    private void CancelPlankPlacement()
+    private void CancelItemPlacement()
     {
         if (plankInstance) Destroy(plankInstance);
         plankInstance = null;
