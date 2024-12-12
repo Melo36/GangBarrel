@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6355037783169351538}
   - component: {fileID: 5697795399831459936}
   - component: {fileID: 874263755971443096}
-  - component: {fileID: 4384220543105749365}
+  - component: {fileID: 3013596320301584031}
   m_Layer: 0
   m_Name: DistanceTextPrefab
   m_TagString: Untagged
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &4384220543105749365
+--- !u!114 &3013596320301584031
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

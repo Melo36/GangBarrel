@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     public float maxMovementRange = 5f;
 
     [Header("Plank Placement")]
-    [SerializeField] private GameObject plankPrefab;
+    //[SerializeField] private GameObject plankPrefab;
     [SerializeField] private Grid tilemapGrid;
 
     private bool shootMode = true;
@@ -43,13 +43,6 @@ public class PlayerController : MonoBehaviour
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-
-        /*
-        if (isPlacing)
-        {
-            UpdatePlacement();
-        }
-        */
 
         HandleMouseInput();
     }
