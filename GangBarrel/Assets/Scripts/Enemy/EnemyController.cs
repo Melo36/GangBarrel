@@ -15,24 +15,13 @@ public class EnemyController : MonoBehaviour
     private List<Vector3[]> possiblePaths = new List<Vector3[]>();
     private Vector3[] chosenPath;
 
+    public bool isInTurn;
+
     public void EnableMovement(float rangeLimit)
     {
         movementRange = rangeLimit;
     }
-
-    public void StartTurn()
-    {
-        canMove = true;
-        StartCoroutine(ThinkAndMove());
-    }
-
-    public void EndTurn()
-    {
-        canMove = false;
-        // Notify the RoundManager that the enemy's turn has ended
-        FindObjectOfType<RoundManager>().EndEnemyTurn();
-    }
-
+    
     private IEnumerator ThinkAndMove()
     {
         Debug.Log("Enemy is thinking...");
@@ -97,7 +86,6 @@ public class EnemyController : MonoBehaviour
         if (path == null || path.Length == 0)
         {
             Debug.LogWarning("No valid path to execute.");
-            EndTurn();
             return;
         }
 
@@ -117,7 +105,6 @@ public class EnemyController : MonoBehaviour
         }
 
         Debug.Log("Enemy reached its destination.");
-        EndTurn();
     }
 
     private bool CanTraversePath(Vector3 start, Vector3 end)

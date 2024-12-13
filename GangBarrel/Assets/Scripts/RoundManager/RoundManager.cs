@@ -1,49 +1,150 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class RoundManager : MonoBehaviour
 {
     public PlayerController playerController;
-    public EnemyController enemyController;
-    public Camera playerCamera;
-    public Camera enemyCamera;
+    public List<EnemyController> activeEnemies = new List<EnemyController>();
+    public CameraFollow cameraFollow;
 
-    private bool isPlayerTurn = true;
+    public GameObject turnTextBackground;
+    public TextMeshProUGUI turnText;
+    public TextMeshProUGUI remainingActionsText;
 
-    public void StartRoundMode()
+    private int currentTurnIndex = -1; // -1 for player, 0+ for enemies
+
+    public int remainingActions = 0;
+    //private const int MaxActionsPerTurn = 5; // Max actions for both player and enemies
+    public bool isCombatActive = false;
+
+    private void Start()
     {
-        playerController.EnableMovement(5f); // 5 meters range
-        enemyController.EnableMovement(3f); // 3 meters range
-        SwitchToPlayerTurn();
+        turnTextBackground.gameObject.SetActive(false);
     }
 
-    private void SwitchToPlayerTurn()
+    public void StartCombat()
     {
-        isPlayerTurn = true;
-        playerCamera.enabled = true;
-        enemyCamera.enabled = false;
-        playerController.StartTurn();
+        Debug.Log("Start Combat");
+        turnTextBackground.SetActive(true);
+        Debug.Log($"turnTextBackground.activeInHierarchy = {turnTextBackground.activeInHierarchy}");
+
+        if (!isCombatActive)
+        {
+            isCombatActive = true;
+            StartPlayerTurn();
+        }
     }
 
-    public void EndPlayerTurn()
+    public void StartPlayerTurn()
     {
-        isPlayerTurn = false;
-        playerController.EndTurn();
-        SwitchToEnemyTurn();
+        currentTurnIndex = -1; // Player's turn
+        
+        remainingActions = playerController.maxActions;
+        remainingActionsText.text = "Remaining Actions: " + remainingActions;
+        
+        turnText.text = "Player's Turn";
+        turnText.color = Color.green;
+        playerController.isInTurn = true;
+
+        cameraFollow.SetTarget(playerController.transform);
+        playerController.StopMovement();
+
+        Debug.Log($"Player turn started with {remainingActions} actions.");
     }
 
-    private void SwitchToEnemyTurn()
+    public void StartEnemyTurn()
     {
-        enemyCamera.enabled = true;
-        playerCamera.enabled = false;
-        enemyController.StartTurn();
+        if (activeEnemies.Count == 0)
+        {
+            EndCombat();
+            return;
+        }
+
+        currentTurnIndex++;
+        if (currentTurnIndex >= activeEnemies.Count)
+        {
+            StartPlayerTurn(); // Reset to player's turn
+            return;
+        }
+        
+        var currentEnemy = activeEnemies[currentTurnIndex];
+
+        turnText.text = $"Enemy {currentTurnIndex + 1}'s Turn";
+        turnText.color = Color.red;
+
+        cameraFollow.SetTarget(currentEnemy.transform);
+
+        Debug.Log($"Enemy {currentTurnIndex + 1} turn started with {remainingActions} actions.");
     }
 
-    public void EndEnemyTurn()
+    public void DecrementActions(int amount)
     {
-        isPlayerTurn = true;
-        enemyController.EndTurn();
-        SwitchToPlayerTurn();
+        if(amount > remainingActions)
+            Debug.LogError("You can not decrement more actions, than you have!");
+        remainingActions-=amount;
+        Debug.Log($"Action taken. Remaining actions: {remainingActions}");
+        
+        remainingActionsText.text = "Remaining Actions: " + remainingActions;
+        
+        if (remainingActions <= 0)
+        {
+            Debug.Log("No actions left. Ending turn.");
+            EndCurrentTurn();
+        }
+    }
+
+    public void EndCurrentTurn()
+    {
+        if (currentTurnIndex == -1)
+        {
+            // Player's turn ended
+            StartEnemyTurn();
+        }
+        else
+        {
+            // Enemy's turn ended
+            StartEnemyTurn();
+        }
+    }
+
+    public void EndCombat()
+    {
+        Debug.Log("EndCombat!");
+        isCombatActive = false;
+        currentTurnIndex = -1;
+        turnText.text = "Combat Ended!";
+        turnText.color = Color.gray;
+
+        StartCoroutine(HideTurnTextBackgroundAfterDelay(4f));
+        Debug.Log("Combat has ended.");
+    }
+
+    private IEnumerator HideTurnTextBackgroundAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        turnTextBackground.SetActive(false);
+    }
+
+    public void AddEnemyToCombat(EnemyController enemy)
+    {
+        if (!activeEnemies.Contains(enemy))
+        {
+            activeEnemies.Add(enemy);
+        }
+    }
+
+    public void RemoveEnemyFromCombat(EnemyController enemy)
+    {
+        if (activeEnemies.Contains(enemy))
+        {
+            activeEnemies.Remove(enemy);
+
+            if (activeEnemies.Count == 0)
+            {
+                EndCombat();
+            }
+        }
     }
 }

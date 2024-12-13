@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     public InventoryManager inventoryManager;
     public GameObject worldSpaceCanvas;
     public RoundManager roundManager;
+    public LineRenderer lineRenderer;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI buttonTextMesh;
@@ -25,7 +26,9 @@ public class PlayerController : MonoBehaviour
 
     [Header("Settings")]
     public float bulletSpeed = 15;
-    public float maxMovementRange = 5f;
+    public int maxActions = 5;
+    private int remainingActions; // Track actions left this turn
+    public bool isInTurn; 
 
     [Header("Plank Placement")]
     //[SerializeField] private GameObject plankPrefab;
@@ -34,8 +37,7 @@ public class PlayerController : MonoBehaviour
     private bool shootMode = true;
     private bool isPlacing = false;
     private bool distanceFrozen = false;
-    private bool canMove = true;
-
+    
     private TextMeshProUGUI distanceTextInstance;
     private GameObject plankInstance;
 
@@ -48,46 +50,42 @@ public class PlayerController : MonoBehaviour
     }
 
     #region RoundBased-stuff
-
-    public void EnableMovement(float rangeLimit)
+    
+    /// <summary>
+    /// When entering a combat zone, we want the player to stop at the border of the combat zone.
+    /// From the player has a limited range to go.
+    /// </summary>
+    public void StopMovement()
     {
-        // Enable player movement with the specified range limit
-        maxMovementRange = rangeLimit;
-    }
-
-    public void StartTurn()
-    {
-        canMove = true;
-    }
-
-    public void EndTurn()
-    {
-        canMove = false;
-        roundManager.EndPlayerTurn();
+        aiDestinationSetter.target = transform;
+        distanceFrozen = false;
     }
 
     #endregion
     
     private void HandleMouseInput()
     {
+        if (roundManager.isCombatActive && !isInTurn)
+            return;
+        
+        Vector3 mousePosition = GetMouseWorldPosition();
+        float distance = CalculatePathDistance(transform.position, mousePosition);
+        
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 mousePosition = GetMouseWorldPosition();
-
             if (shootMode)
             {
                 ShootBullet(mousePosition);
             }
             else
             {
-                HandleWalkMode(mousePosition);
+                HandleWalkMode(mousePosition, distance);
             }
         }
         else if (!distanceFrozen && !shootMode)
         {
-            Vector3 mousePosition = GetMouseWorldPosition();
             UpdatePathVisualization(mousePosition);
-            UpdateDistanceText(mousePosition);
+            UpdateDistanceText(mousePosition, distance);
         }
     }
 
@@ -105,12 +103,17 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Mode changed to: {(shootMode ? "Shoot Mode" : "Move Mode")}");
     }
 
-    private void HandleWalkMode(Vector3 mousePosition)
+    private void HandleWalkMode(Vector3 mousePosition, float distance)
     {
         if (CanTraversePath(transform.position, mousePosition))
         {
             distanceFrozen = true;
 
+            if (!IsDistanceWithinRemainingActions(distance))
+                return;
+            
+            roundManager.DecrementActions(Mathf.RoundToInt(distance));
+        
             // Clear any existing distance text
             if (distanceTextInstance != null)
             {
@@ -120,7 +123,7 @@ public class PlayerController : MonoBehaviour
 
             // Set a new AI target and display updated distance text
             SetAITarget(mousePosition);
-            UpdateDistanceText(mousePosition);
+            UpdateDistanceText(mousePosition, distance);
         }
     }
 
@@ -160,21 +163,46 @@ public class PlayerController : MonoBehaviour
         AstarPath.StartPath(path);
         path.BlockUntilCalculated();
 
+
+        var distance = CalculatePathDistance(transform.position, targetPosition);
+        if (IsDistanceWithinRemainingActions(distance))
+        {
+            lineRenderer.startColor = Color.green;
+            lineRenderer.endColor = Color.green;
+        }
+        else
+        {
+            lineRenderer.startColor = Color.red;
+            lineRenderer.endColor = Color.red;
+        }
+        
         if (!path.error)
         {
             DrawPath(path.vectorPath.ToArray());
         }
     }
 
-    private void UpdateDistanceText(Vector3 targetPosition)
+    /// <summary>
+    /// True: enough actions
+    /// False: not enough actions
+    /// </summary>
+    /// <param name="distance"></param>
+    /// <returns></returns>
+    private bool IsDistanceWithinRemainingActions(float distance)
     {
-        float distance = CalculatePathDistance(transform.position, targetPosition);
-
+        return !roundManager.isCombatActive || !(distance >= roundManager.remainingActions);
+    }
+    
+    private void UpdateDistanceText(Vector3 targetPosition, float distance)
+    {
         if (distanceTextInstance == null)
         {
             // Instantiate the text as a child of the worldSpaceCanvas
             distanceTextInstance = Instantiate(distanceTextPrefab, worldSpaceCanvas.transform);
+            distanceTextInstance.color = Color.green;
         }
+
+        distanceTextInstance.color = IsDistanceWithinRemainingActions(distance) ? Color.green : Color.red;
 
         // Set the position in world space, adding a Y-offset to position it above the target position
         Vector3 textPosition = targetPosition + new Vector3(0, 1.0f, 0); // Adjust Y-offset as needed
@@ -296,7 +324,6 @@ public class PlayerController : MonoBehaviour
 
     private void ClearLineRenderer()
     {
-        LineRenderer lineRenderer = GetComponent<LineRenderer>();
         if (lineRenderer)
         {
             lineRenderer.positionCount = 0;
@@ -305,89 +332,11 @@ public class PlayerController : MonoBehaviour
 
     private void DrawPath(Vector3[] pathPoints)
     {
-        LineRenderer lineRenderer = GetComponent<LineRenderer>();
         if (lineRenderer)
         {
             lineRenderer.positionCount = pathPoints.Length;
             lineRenderer.SetPositions(pathPoints);
         }
     }
-
-    /*
-    private void UpdatePlacement()
-    {
-        if (!plankInstance) return;
-
-        Vector3 mouseWorldPosition = GetMouseWorldPosition();
-        Vector3Int gridCell = tilemapGrid.WorldToCell(mouseWorldPosition);
-        Vector3 snappedPosition = tilemapGrid.GetCellCenterWorld(gridCell);
-
-        snappedPosition.y = plankInstance.transform.position.y;
-        plankInstance.transform.position = snappedPosition;
-
-        if (Input.GetKeyDown(KeyCode.Escape)) CancelPlankPlacement();
-
-        if (Input.GetMouseButtonDown(0)) PlacePlank(gridCell);
-    }
-
-    public void StartPlankPlacement()
-    {
-        if (isPlacing) return;
-
-        isPlacing = true;
-        plankInstance = Instantiate(plankPrefab);
-        plankInstance.AddComponent<Blinking>();
-    }
-
-    private void PlacePlank(Vector3Int gridCell)
-    {
-        // Place the plank in the game world
-        Destroy(plankInstance.GetComponent<Blinking>());
-        plankInstance.transform.position = tilemapGrid.GetCellCenterWorld(gridCell);
-        plankInstance.transform.position -= new Vector3(0, 0.5f, 0f);
-        plankInstance = null;
-        isPlacing = false;
-
-        var plank = inventoryManager.items.FirstOrDefault(item => item.itemType == Item.ItemType.Plank);
-        
-        // Update the graph to make the cell walkable
-        UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell));
-        inventoryManager.RemoveItem(plank);
-
-        Debug.Log("Plank placed successfully!");
-    }
     
-    private void UpdateGraphAtPosition(Vector3 position)
-    {
-        // Define the bounds of the area to update
-        Bounds bounds = new Bounds(position, new Vector3(1, 2, 1)); // Adjust size as needed
-
-        // Create a GraphUpdateObject (GUO) for updating the graph
-        GraphUpdateObject guo = new GraphUpdateObject(bounds);
-
-        // Set the GUO to modify the walkability
-        guo.modifyWalkability = true;
-        guo.setWalkability = true;
-
-        // Optionally, you can set the tag or penalty if needed
-        // guo.tag = 1; // For example, set a tag for the plank area
-        // guo.penalty = 0; // Adjust the penalty if required
-
-        // Apply the GUO
-        AstarPath.active.UpdateGraphs(guo);
-
-        // If you want to force the update immediately (synchronously), uncomment the following line:
-        // AstarPath.active.FlushGraphUpdates();
-
-        Debug.Log("Graph updated at position: " + position);
-    }
-    
-    private void CancelPlankPlacement()
-    {
-        if (plankInstance) Destroy(plankInstance);
-        plankInstance = null;
-        isPlacing = false;
-        Debug.Log("Plank placement canceled.");
-    }
-    */
 }

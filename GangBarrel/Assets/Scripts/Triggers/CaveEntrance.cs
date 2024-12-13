@@ -11,7 +11,7 @@ namespace Triggers
             if (other.CompareTag("Player"))
             {
                 Debug.Log("Player entered the cave. Round-based mode started.");
-                roundManager.StartRoundMode();
+                //roundManager.StartRoundMode();
             }
         }
     }
