@@ -46,10 +46,10 @@ public class CameraFollow : MonoBehaviour
     // Public method to change the camera's target
     public void SetTarget(Transform newTarget)
     {
-        currentTarget = newTarget;
         if (currentTarget != null)
         {
             initialOffset = transform.position - currentTarget.position;
         }
+        currentTarget = newTarget;
     }
 }

@@ -24,7 +24,6 @@ public class TileDetection : MonoBehaviour
             Vector3 direction = (Input.mousePosition - mainCamera.transform.position).normalized;
             if (Physics.Raycast(mainCamera.transform.position, direction, out RaycastHit hit, Mathf.Infinity))
             {
-                Debug.Log("Hit something");
                 if (hit.transform.gameObject.CompareTag("Barrel"))
                 {
                     barrel = true;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using Inventory;
@@ -40,6 +41,7 @@ public class PlayerController : MonoBehaviour
     
     private TextMeshProUGUI distanceTextInstance;
     private GameObject plankInstance;
+    
 
     private void Update()
     {
@@ -58,13 +60,48 @@ public class PlayerController : MonoBehaviour
     public void StopMovement()
     {
         aiDestinationSetter.target = transform;
+        //StartCoroutine(SmoothStop());
         distanceFrozen = false;
     }
 
+    private IEnumerator SmoothStop()
+    {
+        var agent = GetComponent<AIPath>(); // Get AIPath component
+        var aiDestinationSetter = GetComponent<AIDestinationSetter>();
+
+        // Validate components
+        if (agent == null || aiDestinationSetter == null) yield break;
+
+        float originalSpeed = agent.maxSpeed;
+        float stopDuration = 1f; // Duration to decelerate
+        float elapsedTime = 0f;
+
+        // Gradually reduce speed to zero
+        while (elapsedTime < stopDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / stopDuration;
+
+            // Smoothly reduce maxSpeed
+            agent.maxSpeed = Mathf.Lerp(originalSpeed, 0, t);
+
+            yield return null;
+        }
+
+        // Reset the destination to prevent unwanted movement
+        aiDestinationSetter.target = transform;
+        
+        // Restore maxSpeed to 1 (or any desired default value)
+        agent.maxSpeed = 1f;
+        
+    }
+
+    
     #endregion
     
     private void HandleMouseInput()
     {
+        Debug.Log($"Player is in turn = {isInTurn}");
         if (roundManager.isCombatActive && !isInTurn)
             return;
         
@@ -105,14 +142,18 @@ public class PlayerController : MonoBehaviour
 
     private void HandleWalkMode(Vector3 mousePosition, float distance)
     {
+        Debug.Log("HandleWalkMode");
         if (CanTraversePath(transform.position, mousePosition))
         {
             distanceFrozen = true;
 
-            if (!IsDistanceWithinRemainingActions(distance))
-                return;
+            if (roundManager.isCombatActive)
+            {
+                if (!IsDistanceWithinRemainingActions(distance))
+                    return;
             
-            roundManager.DecrementActions(Mathf.RoundToInt(distance));
+                roundManager.DecrementActions(Mathf.RoundToInt(distance));
+            }
         
             // Clear any existing distance text
             if (distanceTextInstance != null)
@@ -120,7 +161,7 @@ public class PlayerController : MonoBehaviour
                 Destroy(distanceTextInstance.gameObject);
                 distanceTextInstance = null;
             }
-
+            Debug.Log("Set AI Target");
             // Set a new AI target and display updated distance text
             SetAITarget(mousePosition);
             UpdateDistanceText(mousePosition, distance);
@@ -143,6 +184,7 @@ public class PlayerController : MonoBehaviour
             bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
 
             inventoryManager.RemoveItem(bulletItem);
+            roundManager.DecrementActions(1);
             Debug.Log("Bullet shot successfully!");
         }
         else
@@ -165,15 +207,18 @@ public class PlayerController : MonoBehaviour
 
 
         var distance = CalculatePathDistance(transform.position, targetPosition);
-        if (IsDistanceWithinRemainingActions(distance))
+        if (roundManager.isCombatActive)
         {
-            lineRenderer.startColor = Color.green;
-            lineRenderer.endColor = Color.green;
-        }
-        else
-        {
-            lineRenderer.startColor = Color.red;
-            lineRenderer.endColor = Color.red;
+            if (IsDistanceWithinRemainingActions(distance))
+            {
+                lineRenderer.startColor = Color.green;
+                lineRenderer.endColor = Color.green;
+            }
+            else
+            {
+                lineRenderer.startColor = Color.red;
+                lineRenderer.endColor = Color.red;
+            }
         }
         
         if (!path.error)
@@ -190,7 +235,7 @@ public class PlayerController : MonoBehaviour
     /// <returns></returns>
     private bool IsDistanceWithinRemainingActions(float distance)
     {
-        return !roundManager.isCombatActive || !(distance >= roundManager.remainingActions);
+        return !(distance >= roundManager.remainingActions);
     }
     
     private void UpdateDistanceText(Vector3 targetPosition, float distance)
@@ -202,7 +247,7 @@ public class PlayerController : MonoBehaviour
             distanceTextInstance.color = Color.green;
         }
 
-        distanceTextInstance.color = IsDistanceWithinRemainingActions(distance) ? Color.green : Color.red;
+        distanceTextInstance.color = (roundManager.isCombatActive && IsDistanceWithinRemainingActions(distance)) ? Color.green : Color.red;
 
         // Set the position in world space, adding a Y-offset to position it above the target position
         Vector3 textPosition = targetPosition + new Vector3(0, 1.0f, 0); // Adjust Y-offset as needed
@@ -248,8 +293,6 @@ public class PlayerController : MonoBehaviour
 
         // Clear the path visualization
         ClearLineRenderer();
-
-        Debug.Log("Target reached. Distance text destroyed.");
     }
 
     

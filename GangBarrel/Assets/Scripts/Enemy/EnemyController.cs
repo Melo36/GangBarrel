@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public float movementRange = 3f; // Enemy's maximum movement range per turn
+    public int movementRange = 3; // Enemy's maximum movement range per turn
     public Transform player;
     public Transform exitPoint;
     public LineRenderer pathLineRenderer; // Assign in the Inspector
@@ -14,35 +14,154 @@ public class EnemyController : MonoBehaviour
     private bool canMove = false;
     private List<Vector3[]> possiblePaths = new List<Vector3[]>();
     private Vector3[] chosenPath;
+    public AIDestinationSetter aiDestinationSetter;
+
+    public LineRenderer lineRenderer;
+    
+    public RoundManager roundManager;
 
     public bool isInTurn;
 
-    public void EnableMovement(float rangeLimit)
+    public void StartEnemyTurn()
     {
-        movementRange = rangeLimit;
-    }
-    
-    private IEnumerator ThinkAndMove()
-    {
-        Debug.Log("Enemy is thinking...");
-        possiblePaths.Clear();
-
-        // Generate 3-5 possible paths to evaluate
-        int pathCount = Random.Range(3, 6);
-        for (int i = 0; i < pathCount; i++)
+        if (roundManager.isCombatActive && isInTurn)
         {
-            VisualizePath();
-            yield return new WaitForSeconds(1f); // Show each path for 1 second
+            Debug.Log("Now the enemy should move towards that middle of the line");
+            var dest = FindRestrictedPointTowardsGoal();
+            SetAITarget(dest);
+        }
+    }
+
+    #region COPY_FROM_PLAYERCONTROLLER
+    private void SetAITarget(Vector3 targetPosition)
+    {
+        // Safely destroy the previous target if it exists
+        if (aiDestinationSetter.target != null)
+        {
+            // Check if the target still exists in the scene
+            if (aiDestinationSetter.target.gameObject != null && aiDestinationSetter.target.gameObject.name == "TempTarget")
+            {
+                Destroy(aiDestinationSetter.target.gameObject);
+            }
+
+            // Clear the reference to avoid accessing a destroyed object
+            aiDestinationSetter.target = null;
         }
 
-        // Select the final path
-        chosenPath = SelectBestPath();
+        // Create a new temporary target object
+        GameObject tempTarget = new GameObject("TempTarget");
+        tempTarget.transform.position = targetPosition;
 
-        // Clear all visualized paths
-        pathLineRenderer.positionCount = 0;
+        // Set the new target for AI
+        aiDestinationSetter.target = tempTarget.transform;
 
-        Debug.Log("Enemy chooses a path and moves.");
-        ExecutePath(chosenPath);
+        // Start the coroutine to wait for the target to be reached
+        StartCoroutine(WaitForTargetReached(tempTarget));
+        
+    }
+    private IEnumerator WaitForTargetReached(GameObject tempTarget)
+    {
+        while (tempTarget != null && Vector3.Distance(transform.position, tempTarget.transform.position) > 0.5f)
+        {
+            yield return null; // Wait for the next frame
+        }
+
+        // Safely destroy the temporary target object if it still exists
+        if (tempTarget != null)
+        {
+            Destroy(tempTarget);
+        }
+
+        // Clear the reference in the AI Destination Setter
+        if (aiDestinationSetter.target != null && aiDestinationSetter.target.gameObject == tempTarget)
+        {
+            aiDestinationSetter.target = null;
+        }
+
+        // Clear the path visualization
+        ClearLineRenderer();
+        
+        roundManager.DecrementActions(movementRange);
+    }
+    
+    private void ClearLineRenderer()
+    {
+        if (lineRenderer)
+        {
+            lineRenderer.positionCount = 0;
+        }
+    }
+    
+    #endregion COPY_FROM_PLAYERCONTROLLER
+    
+    private Vector3 FindShortestPathToPlayerPathTowardsGoal()
+    {
+        Vector3 closestPoint = Vector3.zero;
+
+        // Get positions
+        var playerPos = roundManager.playerController.transform.position;
+        var playerGoalPos = roundManager.playersGoal.position;
+        var enemyPos = transform.position;
+
+        // Calculate the direction vector of the player's path
+        Vector3 playerPathDirection = playerGoalPos - playerPos;
+        float playerPathLengthSquared = playerPathDirection.sqrMagnitude;
+
+        if (playerPathLengthSquared == 0)
+        {
+            // The player's position and goal are the same
+            return playerPos;
+        }
+
+        // Projection factor t to find the closest point
+        float t = Vector3.Dot(enemyPos - playerPos, playerPathDirection) / playerPathLengthSquared;
+
+        // Clamp t to [0, 1] if you want the closest point on the segment
+        t = Mathf.Clamp01(t);
+
+        // Calculate the closest point on the player's path
+        closestPoint = playerPos + t * playerPathDirection;
+
+        return closestPoint;
+    }
+    
+    private Vector3 FindRestrictedPointTowardsGoal()
+    {
+        // Get the closest point on the player's path
+        Vector3 targetPoint = FindShortestPathToPlayerPathTowardsGoal();
+
+        // Get the enemy's current position
+        Vector3 enemyPos = transform.position;
+
+        // Calculate the distance to the target point
+        float distanceToTarget = Vector3.Distance(enemyPos, targetPoint);
+
+        // Get the maximum allowed distance (remaining actions)
+        float maxDistance = roundManager.remainingActions;
+
+        // If the target point is within the allowed range, return it directly
+        if (distanceToTarget <= maxDistance)
+        {
+            return targetPoint;
+        }
+
+        // Otherwise, calculate a new point within the restricted range
+        Vector3 direction = (targetPoint - enemyPos).normalized; // Direction toward the target
+        return enemyPos + direction * maxDistance; // Move only the allowed distance
+    }
+    
+    private int CalculatePathDistance(Vector3[] path)
+    {
+        if (path == null || path.Length < 2) return 0;
+
+        int totalDistance = 0;
+
+        for (int i = 0; i < path.Length - 1; i++)
+        {
+            totalDistance += Mathf.RoundToInt(Vector3.Distance(path[i], path[i + 1]));
+        }
+
+        return totalDistance;
     }
 
     private void VisualizePath()
@@ -72,40 +191,7 @@ public class EnemyController : MonoBehaviour
             DrawPath(path.vectorPath.ToArray());
         }
     }
-
-    private Vector3[] SelectBestPath()
-    {
-        // Example logic: Choose the path closest to the player
-        return possiblePaths
-            .OrderBy(path => Vector3.Distance(path.Last(), player.position))
-            .FirstOrDefault();
-    }
-
-    private void ExecutePath(Vector3[] path)
-    {
-        if (path == null || path.Length == 0)
-        {
-            Debug.LogWarning("No valid path to execute.");
-            return;
-        }
-
-        StartCoroutine(MoveAlongPath(path));
-    }
-
-    private IEnumerator MoveAlongPath(Vector3[] path)
-    {
-        foreach (var point in path)
-        {
-            // Move to the next point in the path
-            while (Vector3.Distance(transform.position, point) > 0.1f)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, point, Time.deltaTime * 2f); // Adjust speed as needed
-                yield return null;
-            }
-        }
-
-        Debug.Log("Enemy reached its destination.");
-    }
+    
 
     private bool CanTraversePath(Vector3 start, Vector3 end)
     {

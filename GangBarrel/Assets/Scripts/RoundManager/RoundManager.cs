@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RoundManager : MonoBehaviour
 {
@@ -13,6 +14,11 @@ public class RoundManager : MonoBehaviour
     public TextMeshProUGUI turnText;
     public TextMeshProUGUI remainingActionsText;
 
+    public Transform playersGoal;
+    
+    // This button can be pressed to end a turn more early.
+    public Button endTurnEarly;
+    
     private int currentTurnIndex = -1; // -1 for player, 0+ for enemies
 
     public int remainingActions = 0;
@@ -22,13 +28,13 @@ public class RoundManager : MonoBehaviour
     private void Start()
     {
         turnTextBackground.gameObject.SetActive(false);
+        endTurnEarly.onClick.AddListener(EndCurrentTurn);
     }
 
     public void StartCombat()
     {
         Debug.Log("Start Combat");
         turnTextBackground.SetActive(true);
-        Debug.Log($"turnTextBackground.activeInHierarchy = {turnTextBackground.activeInHierarchy}");
 
         if (!isCombatActive)
         {
@@ -58,8 +64,11 @@ public class RoundManager : MonoBehaviour
     {
         if (activeEnemies.Count == 0)
         {
-            EndCombat();
-            return;
+            if (isCombatActive)
+            {
+                EndCombat();
+                return;
+            }
         }
 
         currentTurnIndex++;
@@ -68,8 +77,12 @@ public class RoundManager : MonoBehaviour
             StartPlayerTurn(); // Reset to player's turn
             return;
         }
-        
+
         var currentEnemy = activeEnemies[currentTurnIndex];
+
+        // Set remaining actions for this enemy
+        remainingActions = currentEnemy.movementRange;
+        remainingActionsText.text = "Remaining Actions: " + remainingActions;
 
         turnText.text = $"Enemy {currentTurnIndex + 1}'s Turn";
         turnText.color = Color.red;
@@ -77,14 +90,17 @@ public class RoundManager : MonoBehaviour
         cameraFollow.SetTarget(currentEnemy.transform);
 
         Debug.Log($"Enemy {currentTurnIndex + 1} turn started with {remainingActions} actions.");
-    }
 
+        // Tell the enemy to start their logic
+        currentEnemy.isInTurn = true;
+        currentEnemy.StartEnemyTurn(); // Pass the RoundManager for communication
+    }
+    
     public void DecrementActions(int amount)
     {
         if(amount > remainingActions)
             Debug.LogError("You can not decrement more actions, than you have!");
         remainingActions-=amount;
-        Debug.Log($"Action taken. Remaining actions: {remainingActions}");
         
         remainingActionsText.text = "Remaining Actions: " + remainingActions;
         
@@ -111,6 +127,8 @@ public class RoundManager : MonoBehaviour
 
     public void EndCombat()
     {
+        if(!isCombatActive) return;
+        
         Debug.Log("EndCombat!");
         isCombatActive = false;
         currentTurnIndex = -1;
@@ -141,7 +159,7 @@ public class RoundManager : MonoBehaviour
         {
             activeEnemies.Remove(enemy);
 
-            if (activeEnemies.Count == 0)
+            if (activeEnemies.Count == 0 && isCombatActive)
             {
                 EndCombat();
             }
