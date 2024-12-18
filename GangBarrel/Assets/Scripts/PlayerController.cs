@@ -134,8 +134,8 @@ public class PlayerController : MonoBehaviour
         shootMode = !shootMode;
 
         buttonTextMesh.text = shootMode ? "Move" : "Shoot";
-        currentModeTextMesh.text = shootMode ? "Currently: Move Mode" : "Currently: Shoot Mode";
-        currentModeTextMesh.color = shootMode ? Color.green : Color.red;
+        currentModeTextMesh.text = shootMode ? "Currently: Shoot Mode" : "Currently: Move Mode";
+        currentModeTextMesh.color = shootMode ? Color.red : Color.green;
 
         Debug.Log($"Mode changed to: {(shootMode ? "Shoot Mode" : "Move Mode")}");
     }
