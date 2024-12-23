@@ -21,10 +21,19 @@ public class RockExplosionController : MonoBehaviour
         {
             ParticleSystem particle = Instantiate(explosion, transform.position, Quaternion.identity);
             //Quaternion explosionRotation = directionHandler.GetExplosionRotation();
+            Vector3 explosionDirection;
+            Transform otherTransform = other.gameObject.transform;
+            if (other.gameObject.transform.parent)
+            {
+                explosionDirection =
+                    (otherTransform.parent.position - gameObject.transform.position).normalized;
+            }
+            else
+            {
+                explosionDirection =
+                    (otherTransform.position - gameObject.transform.position).normalized;
+            }
             
-            Vector3 explosionDirection =
-                (other.gameObject.transform.position - gameObject.transform.position).normalized;
-
             var q = Quaternion.Euler(0, 90, 0);
             
             //GameObject expl = Instantiate(explosionRadius, transform.position, q);
