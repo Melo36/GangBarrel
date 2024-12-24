@@ -7,7 +7,7 @@ public class BarrelExplosionController : MonoBehaviour
 {
     public ParticleSystem explosion;
     public GameObject explosionRadius;
-
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Bullet") || other.gameObject.CompareTag("ExplosionTrigger"))
