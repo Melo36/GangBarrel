@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -197,6 +198,11 @@ public class LevelEditorWindow : EditorWindow
             SceneView.duringSceneGui -= OnSceneGUI;
             isPainting = false;
         }
+    }
+
+    private void OnDestroy()
+    {
+        StopPainting();
     }
 
     // Resize the tile palette array while preserving existing values

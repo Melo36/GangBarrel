@@ -7,14 +7,6 @@ public class BarrelExplosionController : MonoBehaviour
 {
     public ParticleSystem explosion;
     public GameObject explosionRadius;
-    //private BarrelDirectionHandler directionHandler;
-    
-    /*
-    private void Start()
-    {
-        directionHandler = GetComponent<BarrelDirectionHandler>();
-    }
-    */
 
     private void OnTriggerEnter(Collider other)
     {
