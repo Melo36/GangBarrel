@@ -3,40 +3,67 @@ using UnityEngine;
 
 public class FuseManager : MonoBehaviour
 {
-    public static FuseManager Instance { get; private set; }
-    
+    [Header("References")]
     [SerializeField] private GameObject fusePrefab;
-    [SerializeField] private ParticleSystem fuseParticlePrefab;
+    [SerializeField] private Material fuseMaterial;
+    
+    [Header("Settings")]
+    [SerializeField] private float defaultBurnSpeed = 1f;
+    [SerializeField] private Color fuseColor = Color.yellow;
     
     private List<Fuse> activeFuses = new List<Fuse>();
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        // Validate required references
+        if (fusePrefab == null)
+        {
+            Debug.LogError("Fuse Prefab is not assigned to FuseManager!");
+        }
     }
 
-    public Fuse CreateFuse(Vector3[] path, Transform target)
+    public Fuse CreateFuse(Vector3[] pathPoints, BarrelExplosionController barrel)
     {
+        if (fusePrefab == null) return null;
+
         GameObject fuseObj = Instantiate(fusePrefab);
         Fuse fuse = fuseObj.GetComponent<Fuse>();
         
-        if (fuse != null)
+        if (fuse == null)
         {
-            fuse.Initialize(path, target);
-            activeFuses.Add(fuse);
-            
-            // Subscribe to fuse completion
-            fuse.OnFuseComplete += () => RemoveFuse(fuse);
+            Debug.LogError("Fuse component not found on fusePrefab!");
+            Destroy(fuseObj);
+            return null;
         }
-        
+
+        // Initialize the fuse
+        fuse.Initialize(pathPoints, barrel);
+        activeFuses.Add(fuse);
+
+        // Configure LineRenderer if material is assigned
+        LineRenderer lineRenderer = fuseObj.GetComponent<LineRenderer>();
+        if (lineRenderer != null && fuseMaterial != null)
+        {
+            lineRenderer.material = fuseMaterial;
+            lineRenderer.startColor = fuseColor;
+            lineRenderer.endColor = fuseColor;
+        }
+
         return fuse;
     }
 
-    private void RemoveFuse(Fuse fuse)
+    public void ClearAllFuses()
     {
-        activeFuses.Remove(fuse);
+        foreach (var fuse in activeFuses)
+        {
+            if (fuse != null)
+                Destroy(fuse.gameObject);
+        }
+        activeFuses.Clear();
+    }
+
+    private void OnDestroy()
+    {
+        ClearAllFuses();
     }
 }
