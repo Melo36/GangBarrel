@@ -28,7 +28,7 @@ public class FuseManager : MonoBehaviour
 
         GameObject fuseObj = Instantiate(fusePrefab);
         Fuse fuse = fuseObj.GetComponent<Fuse>();
-        
+
         if (fuse == null)
         {
             Debug.LogError("Fuse component not found on fusePrefab!");

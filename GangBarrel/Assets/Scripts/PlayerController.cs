@@ -436,7 +436,7 @@ public class PlayerController : MonoBehaviour
         {
             return false;
         }
-
+        
         return PathUtilities.IsPathPossible(startNode, endNode);
     }
 
