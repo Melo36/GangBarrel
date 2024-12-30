@@ -5,16 +5,17 @@ using UnityEngine;
 
 public class CaveEntranceController : MonoBehaviour
 {
-    public GameObject freeEntrance;
+    [SerializeField]
+    private GameObject openCave;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("ExplosionTrigger"))
         {
-            /*GameObject instantiatedEntrance = Instantiate(freeEntrance, transform.position, transform.rotation);
-            Quaternion t = instantiatedEntrance.transform.rotation;
-            instantiatedEntrance.transform.rotation = Quaternion.Euler(t.x - 90, t.y, t.z);
-            instantiatedEntrance.transform.localScale = transform.localScale;*/
-            
+            GameObject instantiatedCave =
+                Instantiate(openCave, gameObject.transform.parent);
+            instantiatedCave.transform.position = gameObject.transform.position;
+            instantiatedCave.transform.rotation = gameObject.transform.rotation;
+            instantiatedCave.transform.localScale = gameObject.transform.localScale;
             Destroy(gameObject);
         }
     }

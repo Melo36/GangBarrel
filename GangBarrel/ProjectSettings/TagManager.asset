@@ -10,6 +10,7 @@ TagManager:
   - ExplosionTrigger
   - PickUpPlank
   - Water
+  - CaveEntrance
   layers:
   - Default
   - TransparentFX
