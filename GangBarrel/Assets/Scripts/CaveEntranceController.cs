@@ -7,6 +7,8 @@ public class CaveEntranceController : MonoBehaviour
 {
     [SerializeField]
     private GameObject openCave;
+
+    [SerializeField] private Transform insideCavePosition;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("ExplosionTrigger"))
@@ -16,6 +18,7 @@ public class CaveEntranceController : MonoBehaviour
             instantiatedCave.transform.position = gameObject.transform.position;
             instantiatedCave.transform.rotation = gameObject.transform.rotation;
             instantiatedCave.transform.localScale = gameObject.transform.localScale;
+            instantiatedCave.GetComponentInChildren<EnterCave>().insideCavePosition = insideCavePosition;
             Destroy(gameObject);
         }
     }

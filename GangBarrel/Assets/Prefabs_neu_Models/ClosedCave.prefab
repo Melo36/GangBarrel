@@ -38,6 +38,7 @@ Transform:
   - {fileID: 7516256769791392972}
   - {fileID: 1201988499226673504}
   - {fileID: 2091183438940518969}
+  - {fileID: 8200142002938894027}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &414482677709295963
@@ -283,6 +284,37 @@ Transform:
   - {fileID: 2057054898990269661}
   - {fileID: 5750393228628307238}
   - {fileID: 9147309939202735278}
+  m_Father: {fileID: 2704352974473370081}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2178355931790810216
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8200142002938894027}
+  m_Layer: 0
+  m_Name: OutsideCavePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8200142002938894027
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2178355931790810216}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.35, y: 0, z: -0.929}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 2704352974473370081}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2322290412633343362
@@ -974,6 +1006,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openCave: {fileID: 1821323067378796911, guid: 91d4f7c8a1c2ca840a701f9ef110b32b, type: 3}
+  insideCavePosition: {fileID: 0}
 --- !u!1001 &8967124357160535386
 PrefabInstance:
   m_ObjectHideFlags: 0
