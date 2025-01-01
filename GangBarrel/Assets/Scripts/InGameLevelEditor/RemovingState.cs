@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class RemovingState : IBuildingState
 {
@@ -34,7 +35,7 @@ public class RemovingState : IBuildingState
         previewSystem.StopShowingPreview();
     }
 
-    public void OnAction(Vector3Int gridPosition)
+    public void OnAction(Vector3Int gridPosition, Tilemap tilemap)
     {
         GridData selectedData = null;
         if(!furnitureData.CanPlaceObjectAt(gridPosition,Vector2Int.one))

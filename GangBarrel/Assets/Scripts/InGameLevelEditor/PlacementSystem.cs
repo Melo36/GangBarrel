@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class PlacementSystem : MonoBehaviour
 {
@@ -17,12 +18,6 @@ public class PlacementSystem : MonoBehaviour
     [SerializeField] 
     private GameObject gridVisualization;
 
-    [SerializeField]
-    private AudioSource audioSource;
-    
-    [SerializeField]
-    private AudioSource wrongPlacementAudio;
-
     private GridData floorData, furnitureData;
 
     [SerializeField] 
@@ -30,11 +25,16 @@ public class PlacementSystem : MonoBehaviour
 
     private Vector3Int lastDetectedPosition = Vector3Int.zero;
 
-    [SerializeField] private ObjectPlacer objectPlacer;
+    [SerializeField] 
+    private ObjectPlacer objectPlacer;
 
     private IBuildingState buildingState;
 
-    [SerializeField] private SoundFeedback soundFeedback;
+    [SerializeField] 
+    private SoundFeedback soundFeedback;
+
+    [SerializeField] 
+    private Tilemap tilemap;
 
     private void Start()
     {
@@ -71,15 +71,8 @@ public class PlacementSystem : MonoBehaviour
         Vector3 mousePosition = inputManager.GetSelectedMapPosition();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
 
-        buildingState.OnAction(gridPosition);
+        buildingState.OnAction(gridPosition, tilemap);
     }
-
-    // private bool CheckPlacementValidity(Vector3Int gridPosition)
-    // {
-    //     // Adjust this index later on based on how we place tiles
-    //     GridData selectedData = database.objectsData[selectedObjectIndex].ID == -100 ? floorData : furnitureData;
-    //     return selectedData.CanPlaceObjectAt(gridPosition, database.objectsData[selectedObjectIndex].Size);
-    // }
 
     private void StopPlacement()
     {

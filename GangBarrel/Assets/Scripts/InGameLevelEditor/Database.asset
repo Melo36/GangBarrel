@@ -12,28 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 391a96f1951b045d3a13c38fdb7a3b71, type: 3}
   m_Name: Database
   m_EditorClassIdentifier: 
+  amountOfTiles: 3
   objectsData:
   - <Name>k__BackingField: GrassTile
     <ID>k__BackingField: 0
     <Size>k__BackingField: {x: 1, y: 1}
-    <Prefab>k__BackingField: {fileID: 919132149155446097, guid: 6cc0efcc526f81d45bee5fca1840722f, type: 3}
+    <Prefab>k__BackingField: {fileID: 0}
+    <Tile>k__BackingField: {fileID: 11400000, guid: 8f737618dae729b418afc666ba7b43c8, type: 2}
   - <Name>k__BackingField: BrickTile
     <ID>k__BackingField: 1
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 0}
+    <Tile>k__BackingField: {fileID: 11400000, guid: 215089b3c6ac97f4794a425e04415ac9, type: 2}
   - <Name>k__BackingField: RandomTile
     <ID>k__BackingField: 2
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 0}
+    <Tile>k__BackingField: {fileID: 11400000, guid: 755b4aef3dcefda4788ee280a4088e80, type: 2}
   - <Name>k__BackingField: Barrel
     <ID>k__BackingField: 3
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 2169355177021171195, guid: 063eebed3ade34a51aa4c10dfafc5f73, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
   - <Name>k__BackingField: Big Rock
     <ID>k__BackingField: 4
-    <Size>k__BackingField: {x: 1, y: 1}
+    <Size>k__BackingField: {x: 2, y: 2}
     <Prefab>k__BackingField: {fileID: 2844360828669535257, guid: bffb693a3a14b432c81c2c7ec4a9c45d, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
   - <Name>k__BackingField: Player
     <ID>k__BackingField: 5
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 8128408409364915484, guid: 670939cf27475471fb146c01ba45946e, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
