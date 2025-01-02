@@ -74,7 +74,7 @@ public class PlacementSystem : MonoBehaviour
         buildingState.OnAction(gridPosition, tilemap);
     }
 
-    private void StopPlacement()
+    public void StopPlacement()
     {
         if (buildingState == null)
         {
