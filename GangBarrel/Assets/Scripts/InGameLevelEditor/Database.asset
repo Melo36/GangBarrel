@@ -34,13 +34,33 @@ MonoBehaviour:
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 2169355177021171195, guid: 063eebed3ade34a51aa4c10dfafc5f73, type: 3}
     <Tile>k__BackingField: {fileID: 0}
-  - <Name>k__BackingField: Big Rock
+  - <Name>k__BackingField: Plank
     <ID>k__BackingField: 4
+    <Size>k__BackingField: {x: 2, y: 1}
+    <Prefab>k__BackingField: {fileID: 4587571858970226054, guid: 3e585db1dadd2458090c938b8c3bbae2, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
+  - <Name>k__BackingField: Big Rock
+    <ID>k__BackingField: 5
     <Size>k__BackingField: {x: 2, y: 2}
     <Prefab>k__BackingField: {fileID: 2844360828669535257, guid: bffb693a3a14b432c81c2c7ec4a9c45d, type: 3}
     <Tile>k__BackingField: {fileID: 0}
+  - <Name>k__BackingField: Small Rock
+    <ID>k__BackingField: 6
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 2844360828669535257, guid: bffb693a3a14b432c81c2c7ec4a9c45d, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
   - <Name>k__BackingField: Player
-    <ID>k__BackingField: 5
+    <ID>k__BackingField: 7
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 8128408409364915484, guid: 670939cf27475471fb146c01ba45946e, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
+  - <Name>k__BackingField: Enemy
+    <ID>k__BackingField: 8
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 3779649467170888096, guid: 7618eecd9ee79af46a5d7071ffdaaf1c, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
+  - <Name>k__BackingField: Cave
+    <ID>k__BackingField: 9
+    <Size>k__BackingField: {x: 3, y: 3}
+    <Prefab>k__BackingField: {fileID: 120301856459387864, guid: d3a9025af7ac143808a5718b6c135395, type: 3}
     <Tile>k__BackingField: {fileID: 0}
