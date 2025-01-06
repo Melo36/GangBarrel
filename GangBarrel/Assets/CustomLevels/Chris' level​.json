@@ -1,0 +1,23 @@
+{
+    "gridObjects": [
+        {
+            "objectName": "GridVisualization",
+            "position": {
+                "x": 0.0,
+                "y": 0.014999999664723874,
+                "z": 0.0
+            }
+        },
+        {
+            "objectName": "Grid",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    ],
+    "tilemapData": {
+        "tiles": []
+    }
+}
