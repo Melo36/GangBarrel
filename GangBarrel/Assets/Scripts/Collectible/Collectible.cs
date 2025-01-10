@@ -1,10 +1,10 @@
 using System;
+using System.Linq;
+using Inventory;
 using Pathfinding;
 using UnityEngine;
 using UniRx;
-using TMPro;
 using UnityEngine.Tilemaps;
-using UnityEngine.UI;
 
 public class Collectible : MonoBehaviour
 {
@@ -21,10 +21,16 @@ public class Collectible : MonoBehaviour
     private PromptManager promptManager;
     private ItemUsage itemUsage;
 
-    private void Start()
+    public InventoryManager playerInventory;
+    public GameManager.GameManager gameManager;
+    private FuseManager fuseManager;
+    
+    private void OnEnable()
     {
         promptManager = FindObjectOfType<PromptManager>();
         itemUsage = FindObjectOfType<ItemUsage>();
+        playerInventory = FindObjectOfType<InventoryManager>();
+        fuseManager = FindObjectOfType<FuseManager>();
     }
 
     void Update()
@@ -41,7 +47,12 @@ public class Collectible : MonoBehaviour
         {
             Debug.Log("Player entered collectible range");
             playerInRange = true;
-
+            
+            // if the player has a fuse, then we call the promptManager from the FusePlacement class. 
+            var fuseItem = playerInventory.items.FirstOrDefault(fuse => item.itemType == Item.ItemType.Fuse);
+            if (fuseItem != null && itemType == Item.ItemType.Barrel)
+                return;
+            
             // Display the prompt
             promptManager.ShowInteractionPrompt($"Press E to pick up {item.itemType}.");
             promptManager.SetDescriptionTextForItem(item);
@@ -61,8 +72,22 @@ public class Collectible : MonoBehaviour
 
     private void Collect()
     {
+        // No collection when in WaitEndPoint state.
+        if (fuseManager.currentState == FuseManager.CurrentState.WaitEndPoint)
+            return;
+        
         // Invoke the OnCollected event with the item
         OnCollected.Execute(item);
+        if (item.itemType == Item.ItemType.Key)
+        {
+            playerInventory.keys.Add(gameObject);
+            gameObject.SetActive(false);
+            // Hide the prompt just in case
+            promptManager.StopInteractionPrompt();
+            return;
+        }
+        
+        // Destroying the gameobject and updating the graph.
         Destroy(gameObject);
 
         bool walkable = true;

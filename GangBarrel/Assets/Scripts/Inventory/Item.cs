@@ -7,7 +7,9 @@ public class Item : ScriptableObject
     {
         Barrel,
         Bullet,
-        Plank
+        Plank,
+        Fuse,
+        Key
     }
     public Sprite sprite;
     public ItemType itemType;

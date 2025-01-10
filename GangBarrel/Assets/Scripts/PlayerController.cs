@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Linq;
 using Inventory;
@@ -6,7 +5,6 @@ using Pathfinding;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Tilemaps;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,17 +12,17 @@ public class PlayerController : MonoBehaviour
     public GameObject bulletPrefab;
     public Camera mainCamera;
     public AIDestinationSetter aiDestinationSetter;
-    public Tilemap tileMap;
     public InventoryManager inventoryManager;
     public GameObject worldSpaceCanvas;
     public RoundManager roundManager;
     public LineRenderer lineRenderer;
-
+    public FuseManager fuseManger;
+    
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI buttonTextMesh;
     [SerializeField] private TextMeshProUGUI currentModeTextMesh;
     public TextMeshProUGUI distanceTextPrefab;
-
+    
     [Header("Settings")]
     public float bulletSpeed = 15;
     public int maxActions = 5;
@@ -41,13 +39,12 @@ public class PlayerController : MonoBehaviour
     
     private TextMeshProUGUI distanceTextInstance;
     private GameObject plankInstance;
-
     
     private void Update()
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-
+        
         HandleMouseInput();
     }
 
@@ -99,65 +96,6 @@ public class PlayerController : MonoBehaviour
     
     #endregion
     
-    #region Fuse-stuff
-    
-    [Header("Fuse System")]
-    [SerializeField] private FuseManager fuseManager;
-    private Vector3? fuseStartPoint;
-    
-    private void HandleFuseEndPoint(Vector3 mousePosition)
-    {
-        // Check if clicked on a barrel using tag
-        Collider[] hitColliders = Physics.OverlapSphere(mousePosition, 0.5f);
-        foreach (var collider in hitColliders)
-        {
-            if (collider.CompareTag("Barrel") && 
-                collider.TryGetComponent<BarrelExplosionController>(out var barrel))
-            {
-                Path path = ABPath.Construct(fuseStartPoint.Value, mousePosition);
-                AstarPath.StartPath(path);
-                path.BlockUntilCalculated();
-
-                if (!path.error && CanTraversePath(fuseStartPoint.Value, mousePosition))
-                {
-                    Fuse fuse = fuseManager.CreateFuse(
-                        path.vectorPath.ToArray(),
-                        barrel
-                    );
-                
-                    if (fuse != null)
-                    {
-                        fuse.LightFuse();
-                    
-                        if (roundManager.isCombatActive)
-                        {
-                            roundManager.DecrementActions(1);
-                        }
-                    
-                        Debug.Log("Fuse placed and lit");
-                    }
-                }
-                else
-                {
-                    Debug.Log("Cannot place fuse - invalid path");
-                }
-                break;
-            }
-        }
-    
-        // Reset fuse start point whether successful or not
-        fuseStartPoint = null;
-    }
-
-    private bool IsValidFusePlacement(Vector3 position)
-    {
-        // Use your existing pathfinding logic to check if the position is walkable
-        GraphNode node = AstarPath.active.GetNearest(position).node;
-        return node != null && node.Walkable;
-    }
-    
-    #endregion
-    
     private void HandleMouseInput()
     {
         if (EventSystem.current.IsPointerOverGameObject())
@@ -169,6 +107,7 @@ public class PlayerController : MonoBehaviour
         Vector3 mousePosition = GetMouseWorldPosition();
         float distance = CalculatePathDistance(transform.position, mousePosition);
 
+        // Normal movement/shooting handling
         if (Input.GetMouseButtonDown(0))
         {
             if (shootMode)
@@ -177,35 +116,13 @@ public class PlayerController : MonoBehaviour
             }
             else // Walk Mode
             {
-                // If we're already placing a fuse, handle fuse end point
-                if (fuseStartPoint.HasValue)
-                {
-                    HandleFuseEndPoint(mousePosition);
-                }
-                // Check if clicked on a valid tile and holding the fuse key (e.g., Left Shift)
-                else if (Input.GetKey(KeyCode.LeftShift) && IsValidFusePlacement(mousePosition))
-                {
-                    fuseStartPoint = mousePosition;
-                    Debug.Log("Fuse start point set");
-                }
-                // Normal walk handling
-                else
-                {
-                    HandleWalkMode(mousePosition, distance);
-                }
+                HandleWalkMode(mousePosition, distance);
             }
         }
         else if (!distanceFrozen && !shootMode)
         {
             UpdatePathVisualization(mousePosition);
             UpdateDistanceText(mousePosition, distance);
-        }
-
-        // Cancel fuse placement with right click
-        if (Input.GetMouseButtonDown(1) && fuseStartPoint.HasValue)
-        {
-            fuseStartPoint = null;
-            Debug.Log("Fuse placement cancelled");
         }
     }
 
@@ -288,6 +205,7 @@ public class PlayerController : MonoBehaviour
         AstarPath.StartPath(path);
         path.BlockUntilCalculated();
 
+        Debug.Log($"(PlayerController)path.vectorPath.Count = {path.vectorPath.Count}");
 
         var distance = CalculatePathDistance(transform.position, targetPosition);
         if (roundManager.isCombatActive)

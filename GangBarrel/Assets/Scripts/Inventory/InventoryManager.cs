@@ -19,6 +19,8 @@ namespace Inventory
         public PlayerController playerController;
         [FormerlySerializedAs("itemPlacement")] public ItemUsage itemUsage;
 
+        public List<GameObject> keys;
+
         /// <summary>
         /// Use the item.
         /// </summary>
@@ -52,11 +54,16 @@ namespace Inventory
                 .AddTo(this); // Ensures disposal when the object is destroyed
         }
 
-        private void OnCollectibleCollected(Item item)
+        public void OnCollectibleCollected(Item item)
+        {
+            AddItem(item);
+        }
+
+        public void AddItem(Item item)
         {
             // Add the item to the inventory list
             items.Add(item);
-
+            
             // Instantiate the item prefab and update its UI components
             var newItemUI = CreateInventoryUI(item);
             itemsUI.Add(newItemUI);
@@ -70,10 +77,16 @@ namespace Inventory
             // Instantiate the prefab and set it as a child of the inventory content parent
             GameObject newItem = Instantiate(item.uiItemPrefab, inventoryContentParent.transform);
 
-            if (item.itemType != Item.ItemType.Bullet)
+            if (item.itemType != Item.ItemType.Bullet && item.itemType != Item.ItemType.Fuse)
             {
                 var btn = newItem.GetComponent<Button>();
-                btn.onClick.AddListener(() => itemUsage.StartItemPlacement(item));
+                btn.onClick.AddListener(() => itemUsage.StartItemUsage(item));
+            }
+
+            if (item.itemType == Item.ItemType.Fuse)
+            {
+                var btn = newItem.GetComponent<Button>();
+                //btn.onClick.AddListener(() => playerController.fuseManager.currentState = FuseManager.CurrentState.WaitStartPoint);
             }
         
             // Get the components directly from the children
@@ -93,7 +106,9 @@ namespace Inventory
             {
                 { Item.ItemType.Bullet, 0 },
                 { Item.ItemType.Plank, 1 },
-                { Item.ItemType.Barrel, 2 }
+                { Item.ItemType.Barrel, 2 },
+                { Item.ItemType.Fuse, 3 },
+                {Item.ItemType.Key, 4}
             };
 
             // Create a sorted list of items with their corresponding UI
@@ -128,9 +143,6 @@ namespace Inventory
 
                 // Remove the UI object from the itemsUI list
                 itemsUI.RemoveAt(index);
-
-                // Debugging confirmation
-                Debug.Log($"Removed {item.name} from inventory.");
             }
             else
             {

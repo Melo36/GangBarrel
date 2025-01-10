@@ -22,10 +22,6 @@ public class ItemUsage : MonoBehaviour
     private Item itemToPlace;
     private GameObject placementObject;
     
-    // replace by the prefab object in the item
-    public GameObject plankPrefab;
-    public GameObject barrelPrefab;
-    
     private GameObject plankInstance;
     
     private bool isPlacing;
@@ -80,13 +76,21 @@ public class ItemUsage : MonoBehaviour
     /// 
     /// </summary>
     /// <param name="item"></param>
-    public void StartItemPlacement(Item item)
+    public void StartItemUsage(Item item)
     {
         if (isPlacing) return;
-
-        if (item.itemType == Item.ItemType.Bullet)
+        
+        if (item.itemType is Item.ItemType.Bullet)
             return;
 
+        if (item.itemType is Item.ItemType.Fuse)
+        {
+            // TODO: 1. Let the barrels blink
+            // TODO: 2. Wait for click on one of those barrels or wait for exit action (esc)
+            // TODO: 3. When any barrel has been clicked the player can move the fuse and it is visualized (use Fuse.cs here as well)
+            // TODO: 4. If range is not exceeded and player does not exit action, pressing on a walkable tile, which is not interrupted creates the fuse.
+        }
+        
         var placementPrefab = item.itemPrefab;
         placingItem = item;
         
@@ -104,13 +108,11 @@ public class ItemUsage : MonoBehaviour
         plankInstance = null;
         isPlacing = false;
 
-        var plank = inventoryManager.items.FirstOrDefault(item => item.itemType == Item.ItemType.Plank);
+        var item = inventoryManager.items.FirstOrDefault(i => i.itemType == placingItem.itemType);
         
         // Update the graph to make the cell walkable
         UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell), true);
-        inventoryManager.RemoveItem(plank);
-
-        Debug.Log("Plank placed successfully!");
+        inventoryManager.RemoveItem(item);
     }
     
     public void UpdateGraphAtPosition(Vector3 position, bool walkable)

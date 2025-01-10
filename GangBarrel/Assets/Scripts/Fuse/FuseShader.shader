@@ -1,26 +1,24 @@
-Shader "Custom/FuseBurning"
-
+Shader "Custom/FuseBurningOverlay"
 {
-
     Properties
-
     {
-
         _MainTex ("Texture", 2D) = "white" {}
         _BurnProgress ("Burn Progress", Range(0,1)) = 0
-        _UnburntColor ("Unburnt Color", Color) = (0.3,0.3,0.3,1)
+        _UnburntColor ("Unburnt Color", Color) = (0.5,0.25,0.3,1)
         _BurntColor ("Burnt Color", Color) = (0.1,0.1,0.1,1)
         _BurningColor ("Burning Color", Color) = (1,0.5,0,1)
         _BurnWidth ("Burn Width", Range(0,0.2)) = 0.1
     }
 
     SubShader
-
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "Queue"="Overlay" "RenderType"="Transparent" }
         LOD 100
+
         Pass
         {
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -59,21 +57,20 @@ Shader "Custom/FuseBurning"
             {
                 float burnEdge = _BurnProgress;
                 float burningZone = smoothstep(burnEdge - _BurnWidth, burnEdge, i.uv.y) * 
-
                                   (1 - smoothstep(burnEdge, burnEdge + _BurnWidth, i.uv.y));
                 
-                float burnt = step(burnEdge + _BurnWidth, i.uv.y);
-                float unburnt = step(i.uv.y, burnEdge - _BurnWidth);
+                float unburnt = step(burnEdge + _BurnWidth, i.uv.y);
+                float burnt = step(i.uv.y, burnEdge - _BurnWidth);
                 
                 fixed4 col = _BurningColor * burningZone +
-                            _BurntColor * (1 - unburnt - burningZone) +
+                            _BurntColor * burnt +
                             _UnburntColor * unburnt;
+
+                // Make sure unburnt parts are fully opaque
+                col.a = unburnt + burningZone + burnt * 0.5;
                 return col;
             }
             ENDCG
-
         }
-
     }
-
 }
