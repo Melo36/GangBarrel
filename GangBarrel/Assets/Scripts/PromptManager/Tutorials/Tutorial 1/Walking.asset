@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Walking
   m_EditorClassIdentifier: 
   header: Walking
-  description: 'You can walk around by pressing on the map. There is a '
+  description: You can walk around by first pressing "Move" at the left bottom of
+    the screen and the freely click on the map, where you can see land. Traversing
+    water will require you to find planks, you can find those in chests!
   explanationImage1: {fileID: 21300000, guid: 84e70f733b73bb34888da7e16c56bbba, type: 3}
   explanationImage2: {fileID: 0}
   explanationImage3: {fileID: 0}
