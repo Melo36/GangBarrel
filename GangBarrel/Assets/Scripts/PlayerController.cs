@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Linq;
+using System.Threading.Tasks;
 using Inventory;
 using Pathfinding;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -17,6 +20,8 @@ public class PlayerController : MonoBehaviour
     public RoundManager roundManager;
     public LineRenderer lineRenderer;
     public FuseManager fuseManger;
+    public Animator animator;
+    public Rigidbody rigidbody;
     
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI buttonTextMesh;
@@ -27,27 +32,77 @@ public class PlayerController : MonoBehaviour
     public float bulletSpeed = 15;
     public int maxActions = 5;
     private int remainingActions; // Track actions left this turn
-    public bool isInTurn; 
+    public bool isInTurn;
+    public ReactiveProperty<PlayerState> currentState;
 
     [Header("Plank Placement")]
     //[SerializeField] private GameObject plankPrefab;
     [SerializeField] private Grid tilemapGrid;
 
+    public enum PlayerState
+    {
+        Walk,
+        Idle, 
+        Shoot
+    }
+    
     private bool shootMode = true;
     private bool isPlacing = false;
     private bool distanceFrozen = false;
     
     private TextMeshProUGUI distanceTextInstance;
     private GameObject plankInstance;
-    
+
+    private void Awake()
+    { 
+        currentState = new ReactiveProperty<PlayerState>(PlayerState.Idle);
+        currentState.Subscribe(newState =>
+        {
+            switch (newState)
+            {   
+                case PlayerState.Idle:
+                    animator.Play("Idle");
+                    break;
+                case PlayerState.Shoot:
+                    animator.Play("Shoot");
+                    break;
+                case PlayerState.Walk:
+                    animator.Play("walk");
+                    break;
+                default:
+                    Debug.LogError("This is not a valid animation!");
+                    break;
+            }
+        });
+    }
+
     private void Update()
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         
         HandleMouseInput();
+
+        HandlePlayerState();
     }
 
+    private void HandlePlayerState()
+    {
+        Debug.Log($"rigidbody.velocity.magnitude = {rigidbody.velocity.magnitude}");
+        
+        if (!shootMode)
+        {
+            if (rigidbody.velocity.magnitude > 0.1f)
+            {
+                currentState.Value = PlayerState.Walk;
+            }
+            else
+            {
+                currentState.Value = PlayerState.Idle;
+            }   
+        }
+    }
+    
     #region RoundBased-stuff
     
     /// <summary>
@@ -169,7 +224,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    private void ShootBullet(Vector3 targetPosition)
+    private async void ShootBullet(Vector3 targetPosition)
     {
         var bulletItem = inventoryManager.items.FirstOrDefault(item => item.itemType == Item.ItemType.Bullet);
 
@@ -179,6 +234,8 @@ public class PlayerController : MonoBehaviour
             Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
             Destroy(bulletObject, 5f);
 
+            currentState.Value = PlayerState.Shoot;
+
             Vector3 direction = (targetPosition - transform.position).normalized;
             direction.y = 0.01f;
             bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
@@ -186,6 +243,13 @@ public class PlayerController : MonoBehaviour
             inventoryManager.RemoveItem(bulletItem);
             roundManager.DecrementActions(1);
             Debug.Log("Bullet shot successfully!");
+
+            // Wait for 2 seconds
+            await Task.Delay(2000);
+
+            // Set the state back to Idle
+            currentState.Value = PlayerState.Idle;
+            Debug.Log("Player state set back to Idle.");
         }
         else
         {
@@ -204,9 +268,7 @@ public class PlayerController : MonoBehaviour
         Path path = ABPath.Construct(transform.position, targetPosition);
         AstarPath.StartPath(path);
         path.BlockUntilCalculated();
-
-        Debug.Log($"(PlayerController)path.vectorPath.Count = {path.vectorPath.Count}");
-
+        
         var distance = CalculatePathDistance(transform.position, targetPosition);
         if (roundManager.isCombatActive)
         {
@@ -269,7 +331,8 @@ public class PlayerController : MonoBehaviour
         {
             yield return null; // Wait for the next frame
         }
-
+        
+        
         // Safely destroy the temporary target object if it still exists
         if (tempTarget != null)
         {
