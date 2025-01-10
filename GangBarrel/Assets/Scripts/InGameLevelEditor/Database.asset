@@ -57,10 +57,10 @@ MonoBehaviour:
   - <Name>k__BackingField: Enemy
     <ID>k__BackingField: 8
     <Size>k__BackingField: {x: 1, y: 1}
-    <Prefab>k__BackingField: {fileID: 3779649467170888096, guid: 7618eecd9ee79af46a5d7071ffdaaf1c, type: 3}
+    <Prefab>k__BackingField: {fileID: 3779649467170888096, guid: 22dba5c481a3f448e949f2f24480340f, type: 3}
     <Tile>k__BackingField: {fileID: 0}
   - <Name>k__BackingField: Cave
     <ID>k__BackingField: 9
     <Size>k__BackingField: {x: 3, y: 3}
-    <Prefab>k__BackingField: {fileID: 120301856459387864, guid: d3a9025af7ac143808a5718b6c135395, type: 3}
+    <Prefab>k__BackingField: {fileID: 120301856459387864, guid: 8ed8c0f7c3249440984acf8992c893a9, type: 3}
     <Tile>k__BackingField: {fileID: 0}

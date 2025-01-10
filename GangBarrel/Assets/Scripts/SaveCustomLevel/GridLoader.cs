@@ -13,6 +13,8 @@ public class GridLoader : MonoBehaviour
     private GameObject grid; // Prefab of the grid object to instantiate
     private Tilemap tilemap; // Reference to the Tilemap component
     private string filePath = "Assets/CustomLevels/";
+    private string prefabPath = "Assets/_Prefabs/";
+    
     private Button button;
     public GameObject barrel;
         
@@ -76,14 +78,19 @@ public class GridLoader : MonoBehaviour
         {
             objectName = objectName.Substring(0, cutParentheses);
         }
-        
-        Debug.Log(objectName);
-
-       
-        if (objectName == "LBarrel")
+        else
         {
-            return Instantiate(barrel, objectPosition, Quaternion.identity);
+            return null;
         }
+        Debug.Log(prefabPath + objectName);
+        
+        GameObject prefab = Resources.Load<GameObject>(objectName);
+
+        if (prefab)
+        {
+            return Instantiate(prefab, objectPosition, Quaternion.identity);
+        }
+
         return null;
     }
 
@@ -98,6 +105,7 @@ public class GridLoader : MonoBehaviour
         // Step 2: Create a Grid GameObject in the new Scene
         grid = new GameObject("Grid");
         grid.AddComponent<Grid>();
+        grid.GetComponent<Grid>().cellSwizzle = GridLayout.CellSwizzle.XZY;
 
         // Step 3: Move the Grid GameObject to the new Scene
         SceneManager.MoveGameObjectToScene(grid, newScene);
@@ -106,6 +114,7 @@ public class GridLoader : MonoBehaviour
         GameObject tilemapObject = new GameObject("Tilemap");
         tilemapObject.transform.SetParent(grid.transform);
         tilemap = tilemapObject.AddComponent<UnityEngine.Tilemaps.Tilemap>();
+        tilemap.orientation = Tilemap.Orientation.XZ;
         tilemapObject.AddComponent<UnityEngine.Tilemaps.TilemapRenderer>();
         
         // Step 5: Add a Camera to the new Scene

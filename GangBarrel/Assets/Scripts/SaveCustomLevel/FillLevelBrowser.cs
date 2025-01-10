@@ -22,11 +22,6 @@ public class FillLevelBrowser : MonoBehaviour
                 string fileName = Path.GetFileName(file);
                 newButton.GetComponentInChildren<TextMeshProUGUI>().text = fileName.Split(".")[0];
             }
-
-            foreach (string file in files)
-            {
-                Debug.Log("File found: " + file);
-            }
         }
         else
         {
