@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Pathfinding;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyController : MonoBehaviour
 {
@@ -354,7 +356,16 @@ public class EnemyController : MonoBehaviour
     }
     
     #endregion
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("ExplosionTrigger"))
+        {
+            roundManager.RemoveEnemyFromCombat(this);
+            Destroy(gameObject);
+        }
+    }
+
     private Vector3 FindShortestPathToPlayerPathTowardsGoal()
     {
         Vector3 closestPoint = Vector3.zero;
