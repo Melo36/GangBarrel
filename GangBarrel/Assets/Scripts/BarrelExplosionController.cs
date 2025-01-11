@@ -30,10 +30,13 @@ public class BarrelExplosionController : MonoBehaviour
             
             // Destroy Objects
             Destroy(gameObject);
-            if(other != null)
+            if (other != null)
+            {
                 Destroy(other.gameObject);
-            //Destroy(expl, 1);
-            Destroy(particle, particle.main.duration);
+            }
+                
+            Destroy(expl, 1);
+            Destroy(particle.gameObject, particle.main.duration);
         }
     }
     

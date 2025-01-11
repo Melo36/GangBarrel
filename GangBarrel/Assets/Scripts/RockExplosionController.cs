@@ -35,17 +35,13 @@ public class RockExplosionController : MonoBehaviour
             }
             
             var q = Quaternion.Euler(0, 90, 0);
-            
-            //GameObject expl = Instantiate(explosionRadius, transform.position, q);
             GameObject expl = Instantiate(explosionRadius, transform.position, Quaternion.LookRotation(explosionDirection * -1));
-            //GameObject expl = Instantiate(explosionRadius, transform.position, Quaternion.identity);
-            //GameObject expl = Instantiate(explosionRadius, transform.position, explosionRotation);
             
             // Destroy Objects
             Destroy(gameObject);
-            //Destroy(other.gameObject);
-            //Destroy(expl,1);
-            Destroy(particle, particle.main.duration);
+            Destroy(other.gameObject);
+            Destroy(expl,1);
+            Destroy(particle.gameObject, particle.main.duration);
         }
     }
 }
