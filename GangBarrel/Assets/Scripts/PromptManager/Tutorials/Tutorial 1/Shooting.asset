@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74bb6c5f9249dab46841502efdfe556a, type: 3}
+  m_Name: Shooting
+  m_EditorClassIdentifier: 
+  header: Shooting
+  description: You can shoot by changing the mode in the bottom left to "Shoot Mode".
+    Aim with your mouse and press the left mouse button to shoot. Each shot uses
+    up a bullet.
+  explanationImage1: {fileID: 21300000, guid: f9001eaf1216b40bcb9db9b8b71967d0, type: 3}
+  explanationImage2: {fileID: 0}
+  explanationImage3: {fileID: 0}
