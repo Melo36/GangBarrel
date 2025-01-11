@@ -88,8 +88,6 @@ public class PlayerController : MonoBehaviour
 
     private void HandlePlayerState()
     {
-        Debug.Log($"rigidbody.velocity.magnitude = {rigidbody.velocity.magnitude}");
-        
         if (!shootMode)
         {
             if (rigidbody.velocity.magnitude > 0.1f)

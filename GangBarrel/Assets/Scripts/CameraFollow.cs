@@ -5,10 +5,14 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Transform player; // The object the camera will initially follow
     [SerializeField] private float delay = 2f; // Time in seconds before the camera starts following
     [SerializeField] private float followSpeed = 2f; // Speed at which the camera follows the target
+    [SerializeField] private float targetReachedTolerance = 0.1f;
+    
     private Vector3 initialOffset; // Initial distance from the player
     private bool canFollow = false; // Flag to enable following
     private Transform currentTarget; // Current target for the camera to follow
 
+    public bool ReachedTarget { get; private set; }
+    
     void Start()
     {
         // Calculate the initial offset between the camera and the player
@@ -28,15 +32,21 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
-        if (canFollow && currentTarget != null)
-        {
-            // Target position is the current target's position plus the initial offset
-            Vector3 targetPosition = currentTarget.position + initialOffset;
+        if (!canFollow || currentTarget == null) return;
 
-            // Gradually move the camera towards the target position
-            transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
-        }
+        Vector3 targetPosition = currentTarget.position + initialOffset;
+        Vector3 currentPosition = transform.position;
+
+        // Calculate distance to target
+        float distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
+        
+        // Update reached target status
+        ReachedTarget = distanceToTarget <= targetReachedTolerance;
+
+        // Gradually move the camera towards the target position
+        transform.position = Vector3.Lerp(currentPosition, targetPosition, followSpeed * Time.deltaTime);
     }
+
 
     private void StartFollowing()
     {
