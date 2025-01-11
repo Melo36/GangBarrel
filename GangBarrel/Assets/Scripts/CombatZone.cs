@@ -3,27 +3,85 @@ using UnityEngine;
 
 public class CombatZone : MonoBehaviour
 {
-    public RoundManager roundManager; // Reference to the RoundManager
-    public EnemyController enemyController; // Associated enemy for this combat zone
+    [SerializeField] private BoxCollider outerTrigger; // Combat disengage zone
+    [SerializeField] private BoxCollider innerTrigger; // Combat engage zone
+    [SerializeField] private bool showDebugGizmos = true;
+
+    public RoundManager roundManager;
+    public EnemyController enemyController;
+
+    private bool isInCombat = false;
+
+    private void Awake()
+    {
+        roundManager = FindObjectOfType<RoundManager>();
+        
+        // Ensure both triggers are set correctly
+        outerTrigger.isTrigger = true;
+        innerTrigger.isTrigger = true;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Combat Zone has been entered!");
-        // If the player enters the combat zone, add the enemy to the RoundManager's list
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player")) return;
+
+        // Start combat only when player enters the inner zone
+        if (!isInCombat && other.bounds.Intersects(innerTrigger.bounds))
         {
-            roundManager.AddEnemyToCombat(enemyController);
-            roundManager.StartCombat();
+            StartCombat();
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("Combat Zone has been exited!");
-        // Optional: Remove the enemy if the player leaves the zone
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player")) return;
+
+        // End combat only when player completely exits the outer zone
+        if (isInCombat && !other.bounds.Intersects(outerTrigger.bounds))
         {
-            roundManager.RemoveEnemyFromCombat(enemyController);
+            EndCombat();
         }
     }
+
+    private void StartCombat()
+    {
+        if (isInCombat) return;
+        
+        isInCombat = true;
+        Debug.Log("Combat Zone: Engaging combat!");
+        roundManager.AddEnemyToCombat(enemyController);
+        roundManager.StartCombat();
+    }
+
+    private void EndCombat()
+    {
+        if (!isInCombat) return;
+        
+        isInCombat = false;
+        Debug.Log("Combat Zone: Disengaging combat!");
+        roundManager.RemoveEnemyFromCombat(enemyController);
+    }
+
+    #if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if (!showDebugGizmos) return;
+
+        // Draw inner combat zone (red)
+        if (innerTrigger != null)
+        {
+            Gizmos.color = new Color(1, 0, 0, 0.3f);
+            Gizmos.matrix = innerTrigger.transform.localToWorldMatrix;
+            Gizmos.DrawCube(innerTrigger.center, innerTrigger.size);
+        }
+
+        // Draw outer combat zone (yellow)
+        if (outerTrigger != null)
+        {
+            Gizmos.color = new Color(1, 1, 0, 0.2f);
+            Gizmos.matrix = outerTrigger.transform.localToWorldMatrix;
+            Gizmos.DrawCube(outerTrigger.center, outerTrigger.size);
+        }
+    }
+    #endif
 }

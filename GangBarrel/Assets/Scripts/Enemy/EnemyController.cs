@@ -31,7 +31,12 @@ public class EnemyController : MonoBehaviour
     }
 
     public EnemyBehaviour enemyBehaviour;
-    
+
+    private void Awake()
+    {
+        roundManager = FindObjectOfType<RoundManager>();
+    }
+
     public void StartEnemyTurn()
     {
         if (roundManager.isCombatActive && isInTurn)
