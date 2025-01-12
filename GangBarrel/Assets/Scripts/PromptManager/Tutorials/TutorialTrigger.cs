@@ -17,6 +17,7 @@ public class TutorialTrigger : MonoBehaviour
     {
         bool useMultipleImages = !(tutorial.explanationImage2 == null && tutorial.explanationImage3 == null);
         promptManager.OpenTutorialPanel(tutorial, useMultipleImages);
+        Destroy(gameObject);
     }
 
     private void OnTriggerExit(Collider other)
