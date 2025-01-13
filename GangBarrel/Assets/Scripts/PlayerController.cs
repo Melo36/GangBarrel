@@ -200,7 +200,7 @@ public class PlayerController : MonoBehaviour
         {
             distanceFrozen = true;
 
-            if (roundManager.isCombatActive)
+            if (roundManager.isCombatActive && isInTurn)
             {
                 if (!IsDistanceWithinRemainingActions(distance))
                     return;

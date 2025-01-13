@@ -139,14 +139,6 @@ public class EnemyController : MonoBehaviour
         {
             return playerPos; // Fallback to player position if no path exists
         }
-        
-        // First, check for narrow passages along the path
-        var narrowPassagePoint = FindNarrowPassageInPath(playerPathToGoal.vectorPath);
-        if (narrowPassagePoint.HasValue)
-        {
-            // If we found a narrow passage, prioritize blocking it
-            return narrowPassagePoint.Value;
-        }
 
         Vector3 bestInterceptionPoint = playerPos;
         float bestScore = float.MinValue;
@@ -188,123 +180,6 @@ public class EnemyController : MonoBehaviour
         public Vector3 position;
         public float width;
         public int neighboringWalls;
-    }
-
-    private Vector3? FindNarrowPassageInPath(List<Vector3> path)
-    {
-        var graph = AstarPath.active.data.gridGraph;
-        float nodeSize = graph.nodeSize;
-        
-        List<PassageInfo> narrowPassages = new List<PassageInfo>();
-
-        // Check each point in the path
-        for (int i = 1; i < path.Count - 1; i++)
-        {
-            Vector3 currentPoint = path[i];
-            GraphNode node = graph.GetNearest(currentPoint).node;
-
-            if (IsNarrowPassage(node, out PassageInfo passageInfo))
-            {
-                narrowPassages.Add(passageInfo);
-            }
-        }
-
-        // If we found narrow passages, return the most critical one
-        if (narrowPassages.Count > 0)
-        {
-            // Sort passages by their criticality (smaller width and more walls = more critical)
-            narrowPassages.Sort((a, b) => 
-            {
-                // Combine width and wall count for criticality score
-                float scoreA = a.width * (1.0f / (a.neighboringWalls + 1));
-                float scoreB = b.width * (1.0f / (b.neighboringWalls + 1));
-                return scoreA.CompareTo(scoreB);
-            });
-
-            return narrowPassages[0].position;
-        }
-
-        return null;
-    }
-
-    private bool IsNarrowPassage(GraphNode node, out PassageInfo passageInfo)
-    {
-        passageInfo = new PassageInfo();
-        var graph = AstarPath.active.data.gridGraph;
-        float nodeSize = graph.nodeSize;
-
-        // Initialize counters for walkable and unwalkable neighbors
-        int unwalkableNeighbors = 0;
-        int totalNeighbors = 0;
-        
-        // Get all connections (neighbors)
-        node.GetConnections((neighbor) =>
-        {
-            totalNeighbors++;
-            if (!neighbor.Walkable)
-            {
-                unwalkableNeighbors++;
-            }
-        });
-
-        // Calculate passage width by checking perpendicular directions
-        float horizontalWidth = CalculatePassageWidth(node, Vector3.right);
-        float verticalWidth = CalculatePassageWidth(node, Vector3.forward);
-        
-        // Use the smaller width as the passage width
-        float passageWidth = Mathf.Min(horizontalWidth, verticalWidth);
-
-        // Define what constitutes a narrow passage
-        bool isNarrow = passageWidth <= 2f * nodeSize; // Adjust this threshold as needed
-        bool hasEnoughWalls = unwalkableNeighbors >= 2; // At least 2 neighboring walls
-
-        if (isNarrow && hasEnoughWalls)
-        {
-            passageInfo = new PassageInfo
-            {
-                position = (Vector3)node.position,
-                width = passageWidth,
-                neighboringWalls = unwalkableNeighbors
-            };
-            return true;
-        }
-
-        return false;
-    }
-
-    private float CalculatePassageWidth(GraphNode startNode, Vector3 direction)
-    {
-        var graph = AstarPath.active.data.gridGraph;
-        float nodeSize = graph.nodeSize;
-        
-        // Check in both positive and negative directions
-        int positiveSteps = CountWalkableNodes(startNode, direction);
-        int negativeSteps = CountWalkableNodes(startNode, -direction);
-
-        return (positiveSteps + negativeSteps + 1) * nodeSize;
-    }
-
-    private int CountWalkableNodes(GraphNode startNode, Vector3 direction)
-    {
-        var graph = AstarPath.active.data.gridGraph;
-        int steps = 0;
-        GraphNode currentNode = startNode;
-
-        while (true)
-        {
-            Vector3 nextPos = (Vector3)currentNode.position + direction * graph.nodeSize;
-            var nextNodeInfo = graph.GetNearest(nextPos);
-            
-            if (nextNodeInfo.node == null || !nextNodeInfo.node.Walkable)
-            {
-                break;
-            }
-
-            steps++;
-            currentNode = nextNodeInfo.node;
-        }
-
-        return steps;
     }
     
     private int CountUnwalkableNodesInPath(Vector3 startPos, Vector3 endPos)

@@ -19,7 +19,7 @@ public class RoundManager : MonoBehaviour
     // This button can be pressed to end a turn more early.
     public Button endTurnEarly;
     
-    private int currentTurnIndex = -1; // -1 for player, 0+ for enemies
+    public int currentTurnIndex = -1; // -1 for player, 0+ for enemies
 
     public int remainingActions = 0;
     //private const int MaxActionsPerTurn = 5; // Max actions for both player and enemies
@@ -45,6 +45,7 @@ public class RoundManager : MonoBehaviour
 
     public void StartPlayerTurn()
     {
+        Debug.Log("Start Player Turn");
         currentTurnIndex = -1; // Player's turn
         
         remainingActions = playerController.maxActions;
@@ -60,6 +61,7 @@ public class RoundManager : MonoBehaviour
         Debug.Log($"Player turn started with {remainingActions} actions.");
     }
 
+    // (player, -1), (enemy, 0)
     public void StartEnemyTurn()
     {
         if (activeEnemies.Count == 0)
@@ -71,13 +73,8 @@ public class RoundManager : MonoBehaviour
             }
         }
 
-        currentTurnIndex++;
-        if (currentTurnIndex >= activeEnemies.Count)
-        {
-            StartPlayerTurn(); // Reset to player's turn
-            return;
-        }
-
+        Debug.Log($"currentTurnIndex = {currentTurnIndex}");
+        
         var currentEnemy = activeEnemies[currentTurnIndex];
 
         // Set remaining actions for this enemy
@@ -88,9 +85,7 @@ public class RoundManager : MonoBehaviour
         turnText.color = Color.red;
 
         cameraFollow.SetTarget(currentEnemy.transform);
-
-        Debug.Log($"Enemy {currentTurnIndex + 1} turn started with {remainingActions} actions.");
-
+        
         // Tell the enemy to start their logic
         currentEnemy.isInTurn = true;
         currentEnemy.StartEnemyTurn(); // Pass the RoundManager for communication
@@ -113,30 +108,52 @@ public class RoundManager : MonoBehaviour
 
     public void EndCurrentTurn()
     {
+        Debug.Log($"EndCurrentTurn called. Current turn index before: {currentTurnIndex}");
+
         if (currentTurnIndex == -1)
         {
-            // Player's turn ended
+            // Player's turn is ending, switching to first enemy
+            playerController.isInTurn = false;
+            currentTurnIndex = 0;
+            Debug.Log($"Ending player turn, switching to enemy {currentTurnIndex}");
             StartEnemyTurn();
         }
         else
         {
-            // Enemy's turn ended
-            StartEnemyTurn();
+            // Current enemy's turn is ending
+            if (activeEnemies.Count > 0)
+            {
+                activeEnemies[currentTurnIndex].isInTurn = false;
+            }
+
+            if (currentTurnIndex >= activeEnemies.Count - 1)
+            {
+                // Last enemy finished, back to player
+                currentTurnIndex = -1;
+                Debug.Log("Last enemy finished, switching to player");
+                StartPlayerTurn();
+            }
+            else
+            {
+                // More enemies to go
+                currentTurnIndex++;
+                Debug.Log($"Switching to next enemy {currentTurnIndex}");
+                StartEnemyTurn();
+            }
         }
     }
+
 
     public void EndCombat()
     {
         if(!isCombatActive) return;
         
-        Debug.Log("EndCombat!");
         isCombatActive = false;
         currentTurnIndex = -1;
         turnText.text = "Combat Ended!";
         turnText.color = Color.gray;
 
         StartCoroutine(HideTurnTextBackgroundAfterDelay(4f));
-        Debug.Log("Combat has ended.");
     }
 
     private IEnumerator HideTurnTextBackgroundAfterDelay(float delay)
