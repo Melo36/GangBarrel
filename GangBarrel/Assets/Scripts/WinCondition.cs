@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class WinCondition : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class WinCondition : MonoBehaviour
         {
             Debug.Log("player wins!");
             Destroy(gameObject);
+            SceneManager.LoadScene("Congrats");
         }
     }
 }
