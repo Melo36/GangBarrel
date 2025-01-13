@@ -8,22 +8,22 @@ using Random = UnityEngine.Random;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Settings")]
     public int movementRange = 3; // Enemy's maximum movement range per turn
+    private bool canMove = false;
+    public bool isInTurn;
+    public float shootingDistance;
+    
+    [Header("References")]
     public Transform player;
     public Transform exitPoint;
     public LineRenderer pathLineRenderer; // Assign in the Inspector
-
-    private bool canMove = false;
     private List<Vector3[]> possiblePaths = new List<Vector3[]>();
     private Vector3[] chosenPath;
     public AIDestinationSetter aiDestinationSetter;
-
     public LineRenderer lineRenderer;
-    
     public RoundManager roundManager;
-
-    public bool isInTurn;
-
+    
     public enum EnemyBehaviour
     {
         ShortestPathTowardsAirpath,
@@ -49,7 +49,7 @@ public class EnemyController : MonoBehaviour
                     dest = FindRestrictedPointTowardsGoal();
                     break;
                 case EnemyBehaviour.ShortestPathTowardsActualPath:
-                    dest = FindOptimalInterceptionPoint();
+                    dest = FindPointAlongPlayGoalPath();
                     break;
                 default:
                     Debug.LogError("There is no further enemy behaviours implemented yet!");
@@ -124,119 +124,107 @@ public class EnemyController : MonoBehaviour
     
     #region ADVANCED
     
-    private Vector3 FindOptimalInterceptionPoint()
+    private Vector3 FindPointAlongPlayGoalPath()
     {
         var playerPos = roundManager.playerController.transform.position;
         var playerGoalPos = roundManager.playersGoal.position;
         var enemyPos = transform.position;
 
-        // Get the player's path to goal using A*
-        var playerPathToGoal = ABPath.Construct(playerPos, playerGoalPos);
-        AstarPath.StartPath(playerPathToGoal);
-        playerPathToGoal.BlockUntilCalculated();
+        // 1. Calculate direction vector from player to goal
+        Vector3 playerToGoalDirection = (playerGoalPos - playerPos).normalized;
+    
+        // 2. Calculate point at shooting distance from player along that path
+        Vector3 targetPoint = playerPos + (playerToGoalDirection * shootingDistance);
 
-        if (playerPathToGoal.error || playerPathToGoal.vectorPath.Count == 0)
+        // 3. Use A* to find path and move towards target point
+        Path path = ABPath.Construct(enemyPos, targetPoint, null);
+        AstarPath.StartPath(path);
+        path.BlockUntilCalculated();
+
+        if (path.error || path.vectorPath.Count == 0)
         {
-            return playerPos; // Fallback to player position if no path exists
+            Debug.LogWarning("No valid path found to target point");
+            return enemyPos;
         }
 
-        Vector3 bestInterceptionPoint = playerPos;
-        float bestScore = float.MinValue;
+        Vector3 finalDestination = enemyPos;
+        float totalDistance = 0;
 
-        // Evaluate each point along the player's path
-        for (int i = 0; i < playerPathToGoal.vectorPath.Count; i++)
+        // Walk through path points until we hit our action limit
+        for (int i = 0; i < path.vectorPath.Count - 1; i++)
         {
-            Vector3 pathPoint = playerPathToGoal.vectorPath[i];
-            
-            // Calculate path from enemy to this point
-            var enemyPath = ABPath.Construct(enemyPos, pathPoint);
-            AstarPath.StartPath(enemyPath);
-            enemyPath.BlockUntilCalculated();
-
-            if (enemyPath.error) continue;
-
-            // Count unwalkable nodes in the remaining path to goal from this point
-            int unwalkableNodesCount = CountUnwalkableNodesInPath(pathPoint, playerGoalPos);
-            
-            // Calculate score based on multiple factors
-            float score = CalculateInterceptionScore(
-                enemyPath.vectorPath.Count,  // Length of enemy path to this point
-                playerPathToGoal.vectorPath.Count - i,  // Remaining length of player path
-                unwalkableNodesCount
-            );
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                bestInterceptionPoint = pathPoint;
-            }
-        }
-
-        return bestInterceptionPoint;
-    }
-    
-    private struct PassageInfo
-    {
-        public Vector3 position;
-        public float width;
-        public int neighboringWalls;
-    }
-    
-    private int CountUnwalkableNodesInPath(Vector3 startPos, Vector3 endPos)
-    {
-        // Get a rough rectangle of nodes between start and end positions
-        var bounds = new Bounds();
-        bounds.SetMinMax(
-            Vector3.Min(startPos, endPos),
-            Vector3.Max(startPos, endPos)
-        );
+            Vector3 currentPoint = path.vectorPath[i];
+            Vector3 nextPoint = path.vectorPath[i + 1];
+            float segmentLength = Vector3.Distance(currentPoint, nextPoint);
         
-        int unwalkableCount = 0;
-        var graph = AstarPath.active.data.gridGraph;
-
-        // Expand bounds slightly to include nearby nodes
-        bounds.Expand(2f);
-
-        // Check each node in the bounded area
-        var nodes = graph.GetNodesInRegion(bounds);
-        foreach (var node in nodes)
-        {
-            if (!node.Walkable)
+            if (IsDistanceWithinRemainingActions(totalDistance + segmentLength))
             {
-                unwalkableCount++;
+                totalDistance += segmentLength;
+                finalDestination = nextPoint;
+            }
+            else
+            {
+                float remainingDistance = roundManager.remainingActions - totalDistance;
+                if (remainingDistance > 0)
+                {
+                    Vector3 direction = (nextPoint - currentPoint).normalized;
+                    finalDestination = currentPoint + direction * remainingDistance;
+                }
+                break;
             }
         }
 
-        return unwalkableCount;
+        // After movement, check if we can shoot with remaining actions
+        UseRemainingActionsForShooting(finalDestination);
+
+        return finalDestination;
     }
-
-    private float CalculateInterceptionScore(int enemyPathLength, int remainingPlayerPathLength, int unwalkableNodes, PassageInfo? passageInfo = null)
+    
+    private void UseRemainingActionsForShooting(Vector3 finalPosition)
     {
-        const float ENEMY_PATH_WEIGHT = 1.0f;
-        const float PLAYER_PATH_WEIGHT = 0.8f;
-        const float UNWALKABLE_WEIGHT = 1.2f;
-        const float NARROW_PASSAGE_WEIGHT = 2.0f;
-
-        float normalizedEnemyPath = 1.0f - (enemyPathLength / 100f);
-        float normalizedPlayerPath = 1.0f - (remainingPlayerPathLength / 100f);
-        float normalizedUnwalkable = unwalkableNodes / 20f;
-
-        float score = (normalizedEnemyPath * ENEMY_PATH_WEIGHT) +
-                      (normalizedPlayerPath * PLAYER_PATH_WEIGHT) +
-                      (normalizedUnwalkable * UNWALKABLE_WEIGHT);
-
-        // Add bonus for narrow passages
-        if (passageInfo.HasValue)
+        // Check if we reached our desired position (with some tolerance)
+        float distanceToDesiredPosition = Vector3.Distance(transform.position, finalPosition);
+        if (distanceToDesiredPosition <= 0.5f) // 0.5f is tolerance
         {
-            float narrownessScore = (1.0f - (passageInfo.Value.width / (4f * AstarPath.active.data.gridGraph.nodeSize)));
-            score += narrownessScore * NARROW_PASSAGE_WEIGHT;
+            // Check if we're at shooting distance from player
+            float distanceToPlayer = Vector3.Distance(finalPosition, roundManager.playerController.transform.position);
+            if (Mathf.Abs(distanceToPlayer - shootingDistance) <= 0.5f)
+            {
+                // While we still have actions, keep shooting
+                if (roundManager.remainingActions > 0)
+                {
+                    Shoot();
+                    roundManager.DecrementActions(1); // Assuming each shot costs 1 action
+                }
+            }
         }
-
-        return score;
+    }
+    
+    /// <summary>
+    /// True: enough actions
+    /// False: not enough actions
+    /// </summary>
+    /// <param name="distance"></param>
+    /// <returns></returns>
+    private bool IsDistanceWithinRemainingActions(float distance)
+    {
+        return (Mathf.CeilToInt(distance) <= roundManager.remainingActions);
     }
     
     #endregion
 
+    private void Shoot()
+    {
+        Debug.Log($"Enemy {gameObject.name} is shooting at player!");
+        // Implement shooting logic here
+        // For example:
+        // - Check line of sight
+        // - Apply damage
+        // - Play effects
+        // - Use action points
+    }
+
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("ExplosionTrigger"))
@@ -302,49 +290,6 @@ public class EnemyController : MonoBehaviour
         return enemyPos + direction * maxDistance; // Move only the allowed distance
     }
     
-    private int CalculatePathDistance(Vector3[] path)
-    {
-        if (path == null || path.Length < 2) return 0;
-
-        int totalDistance = 0;
-
-        for (int i = 0; i < path.Length - 1; i++)
-        {
-            totalDistance += Mathf.RoundToInt(Vector3.Distance(path[i], path[i + 1]));
-        }
-
-        return totalDistance;
-    }
-
-    private void VisualizePath()
-    {
-        // Randomize a target position within the movement range
-        Vector3 randomTarget = transform.position + new Vector3(
-            Random.Range(-movementRange, movementRange),
-            0,
-            Random.Range(-movementRange, movementRange)
-        );
-
-        // Check if the random target is valid
-        if (!CanTraversePath(transform.position, randomTarget))
-            return;
-
-        // Calculate the path
-        Path path = ABPath.Construct(transform.position, randomTarget);
-        AstarPath.StartPath(path);
-        path.BlockUntilCalculated();
-
-        if (!path.error)
-        {
-            // Save the path for evaluation
-            possiblePaths.Add(path.vectorPath.ToArray());
-
-            // Visualize the path
-            DrawPath(path.vectorPath.ToArray());
-        }
-    }
-    
-
     private bool CanTraversePath(Vector3 start, Vector3 end)
     {
         GraphNode startNode = AstarPath.active.GetNearest(start).node;

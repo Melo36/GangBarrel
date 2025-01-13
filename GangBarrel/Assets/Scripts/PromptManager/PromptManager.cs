@@ -19,6 +19,8 @@ public class PromptManager : MonoBehaviour
     public Button xButton;                          // ScreenSpaceCanvas/ChestContentPanel/X-Button
     public GameObject chestContentParentObject;     // ScreenSpaceCanvas/ChestContentPanel/Background/ScrollArea/ItemsMask/Content
 
+    [Header("Game Over")] public GameObject gameOverPanel;
+
     [Header("Tutorials")]
     [SerializeField]private GameObject tutorialPanel;
     
@@ -88,6 +90,11 @@ public class PromptManager : MonoBehaviour
         tutorialPanel.SetActive(true);
     }
 
+    public void ShowGameOverScreen()
+    {
+        gameOverPanel.SetActive(true);
+    }
+    
     public void CloseTutorialPanel()
     {
         // Go back to the game

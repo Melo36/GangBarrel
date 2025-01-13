@@ -64,6 +64,9 @@ public class RoundManager : MonoBehaviour
     // (player, -1), (enemy, 0)
     public void StartEnemyTurn()
     {
+        if (!isCombatActive)
+            return;
+        
         if (activeEnemies.Count == 0)
         {
             if (isCombatActive)
