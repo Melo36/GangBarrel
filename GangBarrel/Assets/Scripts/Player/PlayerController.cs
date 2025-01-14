@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour
                     break;
             }
         });
+        /*
         health.Subscribe(newValue =>
         {
             playerUI.UpdateLifeUI(newValue);
@@ -88,6 +89,7 @@ public class PlayerController : MonoBehaviour
                 promptManager.ShowGameOverScreen();
             }
         });
+        */
     }
 
     private void Update()
