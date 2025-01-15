@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -11,6 +12,7 @@ namespace Inventory
     public class InventoryManager : MonoBehaviour
     {
         public List<Item> items = new List<Item>();
+        
         public GameObject inventoryContentParent;
 
         // objects displayed in the ui
@@ -21,6 +23,36 @@ namespace Inventory
 
         public List<GameObject> keys;
         
+        private void Awake()
+        {
+            SyncCheckInventoryUI();
+        }
+
+        /// <summary>
+        /// Checks whether the ui has the same amount of objects, as the items list, if no, delete all add them anew.
+        /// </summary>
+        private void SyncCheckInventoryUI()
+        {
+            if (items.Count == itemsUI.Count) return;
+            
+            // Delete all items from ui panel:
+            if (itemsUI.Count > 0)
+            {
+                itemsUI.ForEach(Destroy);
+                itemsUI.RemoveRange(0, itemsUI.Count - 1);
+            }
+
+            // Add them back 
+            foreach (var item in items)
+            {
+                var newItemUI = CreateInventoryUI(item);
+                itemsUI.Add(newItemUI);
+            }
+
+            SortInventory();
+        }
+        
+
         void OnEnable()
         {
             // Subscribe to the OnCollected ReactiveCommand
@@ -51,7 +83,7 @@ namespace Inventory
             SortInventory();
         }
 
-        private GameObject CreateInventoryUI(Item item)
+        internal GameObject CreateInventoryUI(Item item)
         {
             // Instantiate the prefab and set it as a child of the inventory content parent
             GameObject newItem = Instantiate(item.uiItemPrefab, inventoryContentParent.transform);
@@ -127,6 +159,19 @@ namespace Inventory
             {
                 Debug.LogWarning("Item not found in inventory. Cannot remove.");
             }
+        }
+
+        public void RemoveLastItem()
+        {
+            if (items.Count <= 0)
+                return;
+            
+            var lastIndex = items.Count - 1;
+            
+            items.RemoveAt(lastIndex);
+            Destroy(itemsUI[lastIndex]);
+            itemsUI.RemoveAt(lastIndex);
+            
         }
 
     }
