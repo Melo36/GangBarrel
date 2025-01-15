@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     private bool canMove = false;
     public bool isInTurn;
     public float shootingDistance;
+    public float bulletSpeed = 15;
     
     [Header("References")]
     public Transform player;
@@ -23,6 +24,7 @@ public class EnemyController : MonoBehaviour
     public AIDestinationSetter aiDestinationSetter;
     public LineRenderer lineRenderer;
     public RoundManager roundManager;
+    [SerializeField] private GameObject bulletPrefab;
     
     public enum EnemyBehaviour
     {
@@ -30,11 +32,14 @@ public class EnemyController : MonoBehaviour
         ShortestPathTowardsActualPath
     }
 
+    
+    
     public EnemyBehaviour enemyBehaviour;
 
     private void Awake()
     {
         roundManager = FindObjectOfType<RoundManager>();
+        player = FindObjectOfType<PlayerController>().gameObject.transform;
     }
 
     public void StartEnemyTurn()
@@ -222,12 +227,28 @@ public class EnemyController : MonoBehaviour
         // - Apply damage
         // - Play effects
         // - Use action points
+        
+        GameObject bulletObject = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
+        Destroy(bulletObject, 5f);
+        
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0.01f;
+        bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
+
+        roundManager.DecrementActions(1);
+        Debug.Log("Bullet shot successfully!");
+
+        // Set the state back to Idle
+        Debug.Log("Player state set back to Idle.");
+        
     }
 
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("ExplosionTrigger"))
+        // Enemy can die in explosion or by bullet.
+        if (other.CompareTag("ExplosionTrigger") && other.CompareTag("Bullet"))
         {
             roundManager.RemoveEnemyFromCombat(this);
             Destroy(gameObject);

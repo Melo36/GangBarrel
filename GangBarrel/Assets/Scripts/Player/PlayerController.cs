@@ -41,7 +41,16 @@ public class PlayerController : MonoBehaviour
     [Header("Plank Placement")]
     //[SerializeField] private GameObject plankPrefab;
     [SerializeField] private Grid tilemapGrid;
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Bullet"))
+        {
+            Debug.Log("!!!!!!!!!!Player was hit by a bullet.");
+            health.Value--;
+        }
+    }
+
     public enum PlayerState
     {
         Walk,
