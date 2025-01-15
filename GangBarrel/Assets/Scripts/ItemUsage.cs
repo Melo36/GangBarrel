@@ -67,7 +67,10 @@ public class ItemUsage : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape)) CancelItemPlacement();
 
         canPlace.Value = gridGraph.GetNearest(snappedPosition).node.Walkable;
-        RotatePlankDependingOnNeighbours(snappedPosition);
+        if(itemToPlace.itemType == Item.ItemType.Plank) 
+            RotatePlankDependingOnNeighbours(snappedPosition);
+
+        placementObjectInstance.GetComponent<Renderer>().material.color = canPlace.Value ? Color.white : Color.red;
         
         if (Input.GetMouseButtonDown(0)) PlaceItem(gridCell);
     }
