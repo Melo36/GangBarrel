@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7426083840451862123}
   - component: {fileID: 3167792063364113228}
   - component: {fileID: 8793636482747276508}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BarrelExplosionRadius
   m_TagString: ExplosionTrigger
   m_Icon: {fileID: 0}
