@@ -35,7 +35,7 @@ public class BarrelExplosionController : MonoBehaviour
                 Destroy(other.gameObject);
             }
                 
-            Destroy(expl, 1);
+            //Destroy(expl, 1);
             Destroy(particle.gameObject, particle.main.duration);
         }
     }

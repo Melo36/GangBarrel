@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74bb6c5f9249dab46841502efdfe556a, type: 3}
+  m_Name: Big Rock Explosion
+  m_EditorClassIdentifier: 
+  header: Rock Explosion
+  description: When rocks explode they scatter into certain directions depending
+    on the position of the barrel.
+  explanationImage1: {fileID: 21300000, guid: 74182c10e2917489d90e58e643a13335, type: 3}
+  explanationImage2: {fileID: 0}
+  explanationImage3: {fileID: 0}
