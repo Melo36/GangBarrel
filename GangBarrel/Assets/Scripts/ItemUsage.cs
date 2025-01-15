@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Inventory;
 using Pathfinding;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -22,7 +23,7 @@ public class ItemUsage : MonoBehaviour
     private Item itemToPlace;
     private GameObject placementObject;
     
-    private GameObject plankInstance;
+    private GameObject placementObjectInstance;
     
     private bool isPlacing;
 
@@ -55,14 +56,14 @@ public class ItemUsage : MonoBehaviour
     
     private void UpdatePlacement()
     {
-        if (!plankInstance) return;
+        if (!placementObjectInstance) return;
 
         Vector3 mouseWorldPosition = GetMouseWorldPosition();
         Vector3Int gridCell = tilemapGrid.WorldToCell(mouseWorldPosition);
         Vector3 snappedPosition = tilemapGrid.GetCellCenterWorld(gridCell);
 
-        snappedPosition.y = plankInstance.transform.position.y;
-        plankInstance.transform.position = snappedPosition;
+        snappedPosition.y = placementObjectInstance.transform.position.y;
+        placementObjectInstance.transform.position = snappedPosition;
 
         if (Input.GetKeyDown(KeyCode.Escape)) CancelItemPlacement();
 
@@ -95,23 +96,34 @@ public class ItemUsage : MonoBehaviour
         placingItem = item;
         
         isPlacing = true;
-        plankInstance = Instantiate(placementPrefab);
-        plankInstance.AddComponent<Blinking>();
+        placementObjectInstance = Instantiate(placementPrefab);
+        placementObjectInstance.AddComponent<Blinking>();
     }
 
     private void PlaceItem(Vector3Int gridCell)
     {
-        // Place the plank in the game world
-        Destroy(plankInstance.GetComponent<Blinking>());
-        plankInstance.transform.position = tilemapGrid.GetCellCenterWorld(gridCell);
-        plankInstance.transform.position -= new Vector3(0, 0.0f, 0f);
-        plankInstance = null;
-        isPlacing = false;
-
+        // Place the item in the game world
+        Destroy(placementObjectInstance.GetComponent<Blinking>());
+        placementObjectInstance.transform.position = tilemapGrid.GetCellCenterWorld(gridCell);
+        placementObjectInstance.transform.position -= new Vector3(0, 0.0f, 0f);
+        
         var item = inventoryManager.items.FirstOrDefault(i => i.itemType == placingItem.itemType);
         
+        if (item != null && item.itemType == Item.ItemType.Plank)
+        {
+            UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell), true);
+            Destroy(placementObjectInstance.GetComponent<Collectible>());
+        }
+        
+        placementObjectInstance = null;
+        isPlacing = false;
+        
         // Update the graph to make the cell walkable
-        UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell), true);
+        if (item != null && item.itemType != Item.ItemType.Plank)
+        {
+            UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell), false);    
+        }
+        
         inventoryManager.RemoveItem(item);
     }
     
@@ -127,23 +139,18 @@ public class ItemUsage : MonoBehaviour
         guo.modifyWalkability = walkable;
         guo.setWalkability = walkable;
 
-        // Optionally, you can set the tag or penalty if needed
-        // guo.tag = 1; // For example, set a tag for the plank area
-        // guo.penalty = 0; // Adjust the penalty if required
-
         // Apply the GUO
         AstarPath.active.UpdateGraphs(guo);
 
-        // If you want to force the update immediately (synchronously), uncomment the following line:
-        // AstarPath.active.FlushGraphUpdates();
+        AstarPath.active.FlushGraphUpdates();
 
         Debug.Log("Graph updated at position: " + position);
     }
     
     private void CancelItemPlacement()
     {
-        if (plankInstance) Destroy(plankInstance);
-        plankInstance = null;
+        if (placementObjectInstance) Destroy(placementObjectInstance);
+        placementObjectInstance = null;
         isPlacing = false;
         Debug.Log("Plank placement canceled.");
     }
