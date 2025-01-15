@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Inventory;
 using Pathfinding;
+using UniRx;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -27,30 +28,28 @@ public class ItemUsage : MonoBehaviour
     
     private bool isPlacing;
 
-    private Item placingItem;
+    private ReactiveProperty<bool> canPlace = new ReactiveProperty<bool>(true);
     
+    private Item placingItem;
+
+    private GridGraph gridGraph;
+    
+    private void Awake()
+    {
+        gridGraph = AstarPath.active.data.gridGraph;
+        /*
+        canPlace.Subscribe(b =>
+        {
+            placementObjectInstance.GetComponent<Renderer>().material.color = b ? Color.white : Color.red;
+        });
+        */
+    }
+
     private void Update()
     {
         if (isPlacing)
         {
             UpdatePlacement();
-        }
-    }
-
-    public void UseItem(Item item)
-    {
-        itemToPlace = item;
-        switch (item.itemType)
-        {
-            case Item.ItemType.Barrel:
-                Debug.Log("Place Barrel");
-                break;
-            case Item.ItemType.Bullet:
-                Debug.Log("Shoot Bullet");
-                break;
-            case Item.ItemType.Plank:
-                Debug.Log("Place Plank");
-                break;
         }
     }
     
@@ -61,15 +60,34 @@ public class ItemUsage : MonoBehaviour
         Vector3 mouseWorldPosition = GetMouseWorldPosition();
         Vector3Int gridCell = tilemapGrid.WorldToCell(mouseWorldPosition);
         Vector3 snappedPosition = tilemapGrid.GetCellCenterWorld(gridCell);
-
+        
         snappedPosition.y = placementObjectInstance.transform.position.y;
         placementObjectInstance.transform.position = snappedPosition;
-
+        
         if (Input.GetKeyDown(KeyCode.Escape)) CancelItemPlacement();
 
+        canPlace.Value = gridGraph.GetNearest(snappedPosition).node.Walkable;
+        RotatePlankDependingOnNeighbours(snappedPosition);
+        
         if (Input.GetMouseButtonDown(0)) PlaceItem(gridCell);
     }
 
+    private void RotatePlankDependingOnNeighbours(Vector3 snappedPosition)
+    {
+        // Positions
+        var positionEast = new Vector3(snappedPosition.x + 1, snappedPosition.y, snappedPosition.z);
+        var positionWest = new Vector3(snappedPosition.x - 1, snappedPosition.y, snappedPosition.z);
+        
+        // Walk ability
+        var canWalkEast = gridGraph.GetNearest(positionEast).node.Walkable;
+        var canWalkWest = gridGraph.GetNearest(positionWest).node.Walkable;
+        
+        if(canWalkEast && canWalkWest)
+            placementObjectInstance.transform.rotation = Quaternion.Euler(0,0,0);
+        else 
+            placementObjectInstance.transform.rotation = Quaternion.Euler(0,90,0);
+    }
+    
     /// <summary>
     /// For items that can be placed, this function makes sense.
     ///
@@ -80,6 +98,8 @@ public class ItemUsage : MonoBehaviour
     public void StartItemUsage(Item item)
     {
         if (isPlacing) return;
+
+        itemToPlace = item;
         
         if (item.itemType is Item.ItemType.Bullet)
             return;
@@ -102,10 +122,12 @@ public class ItemUsage : MonoBehaviour
 
     private void PlaceItem(Vector3Int gridCell)
     {
+        // No placement on areas, where we cannot place it
+        if (!canPlace.Value && itemToPlace.itemType != Item.ItemType.Plank) 
+            return;
         // Place the item in the game world
         Destroy(placementObjectInstance.GetComponent<Blinking>());
         placementObjectInstance.transform.position = tilemapGrid.GetCellCenterWorld(gridCell);
-        placementObjectInstance.transform.position -= new Vector3(0, 0.0f, 0f);
         
         var item = inventoryManager.items.FirstOrDefault(i => i.itemType == placingItem.itemType);
         

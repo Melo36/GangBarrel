@@ -20,28 +20,7 @@ namespace Inventory
         [FormerlySerializedAs("itemPlacement")] public ItemUsage itemUsage;
 
         public List<GameObject> keys;
-
-        /// <summary>
-        /// Use the item.
-        /// </summary>
-        /// <returns>true if success, false if it did not work.</returns>
-        public bool UseItem(Item item)
-        {
-            switch (item.itemType)
-            {
-                case Item.ItemType.Barrel:
-                    Debug.Log("Use Barrel");
-                    break;
-                case Item.ItemType.Plank:
-                    Debug.Log("Use Plank");
-                    break;
-                case Item.ItemType.Bullet:
-                    Debug.Log("Load the bullet!");
-                    break;
-            }
-            return true;
-        }
-
+        
         void OnEnable()
         {
             // Subscribe to the OnCollected ReactiveCommand
