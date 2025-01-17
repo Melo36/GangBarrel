@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Pathfinding;
 using System.Linq;
@@ -12,7 +13,12 @@ public class PathVisualizer : MonoBehaviour {
     public Camera mainCamera; // Reference to the main camera
     public Canvas worldSpaceCanvas; // Reference to your World Space Canvas
 
-    
+
+    private void Awake()
+    {
+        mainCamera = Camera.main;
+    }
+
     void Start() {
         lineRenderer = GetComponent<LineRenderer>();
         seeker = GetComponent<Seeker>();

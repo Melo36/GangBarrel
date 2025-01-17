@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class UIButtons : MonoBehaviour
 {
-    
     public void PressButton(string scene)
     {
         SceneManager.LoadScene(scene);
@@ -16,5 +15,4 @@ public class UIButtons : MonoBehaviour
     {
         Application.Quit();
     }
-
 }

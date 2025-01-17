@@ -8,6 +8,8 @@ using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -19,11 +21,12 @@ public class PlayerController : MonoBehaviour
     public GameObject worldSpaceCanvas;
     public RoundManager roundManager;
     public LineRenderer lineRenderer;
-    public FuseManager fuseManger;
+    public FuseManager fuseManager;
     public Animator animator;
     public Rigidbody rigidbody;
     private PromptManager promptManager;
     private PlayerUI playerUI;
+    public Button moveShootToggle;
     
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI buttonTextMesh;
@@ -70,6 +73,11 @@ public class PlayerController : MonoBehaviour
         playerUI = GetComponent<PlayerUI>();
         promptManager = FindObjectOfType<PromptManager>();
         currentState = new ReactiveProperty<PlayerState>(PlayerState.Idle);
+        fuseManager = FindObjectOfType<FuseManager>();
+        tilemapGrid = FindObjectOfType<Grid>();
+
+        moveShootToggle.onClick.AddListener(ToggleMode);
+        
         currentState.Subscribe(newState =>
         {
             switch (newState)
@@ -178,7 +186,7 @@ public class PlayerController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
 
-        if (roundManager.isCombatActive && !isInTurn)
+        if (roundManager.isCombatActive.Value && !isInTurn)
             return;
 
         Vector3 mousePosition = GetMouseWorldPosition();
@@ -221,7 +229,7 @@ public class PlayerController : MonoBehaviour
         {
             distanceFrozen = true;
 
-            if (roundManager.isCombatActive && isInTurn)
+            if (roundManager.isCombatActive.Value && isInTurn)
             {
                 if (!IsDistanceWithinRemainingActions(distance))
                     return;
@@ -288,7 +296,7 @@ public class PlayerController : MonoBehaviour
         path.BlockUntilCalculated();
         
         var distance = CalculatePathDistance(transform.position, targetPosition);
-        if (roundManager.isCombatActive)
+        if (roundManager.isCombatActive.Value)
         {
             if (IsDistanceWithinRemainingActions(distance))
             {
@@ -328,7 +336,7 @@ public class PlayerController : MonoBehaviour
             distanceTextInstance.color = Color.green;
         }
 
-        distanceTextInstance.color = (roundManager.isCombatActive && IsDistanceWithinRemainingActions(distance)) ? Color.green : Color.red;
+        distanceTextInstance.color = (roundManager.isCombatActive.Value && IsDistanceWithinRemainingActions(distance)) ? Color.green : Color.red;
 
         // Set the position in world space, adding a Y-offset to position it above the target position
         Vector3 textPosition = targetPosition + new Vector3(0, 1.0f, 0); // Adjust Y-offset as needed

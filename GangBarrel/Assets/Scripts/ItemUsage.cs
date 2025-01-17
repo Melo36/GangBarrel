@@ -37,6 +37,7 @@ public class ItemUsage : MonoBehaviour
     private void Awake()
     {
         gridGraph = AstarPath.active.data.gridGraph;
+        mainCamera = Camera.main;
         /*
         canPlace.Subscribe(b =>
         {
@@ -70,7 +71,11 @@ public class ItemUsage : MonoBehaviour
         if(itemToPlace.itemType == Item.ItemType.Plank) 
             RotatePlankDependingOnNeighbours(snappedPosition);
 
-        placementObjectInstance.GetComponent<Renderer>().material.color = canPlace.Value ? Color.white : Color.red;
+        var rend = placementObjectInstance.GetComponent<Renderer>();
+        if (rend != null)
+        {
+            placementObjectInstance.GetComponent<Renderer>().material.color = canPlace.Value ? Color.white : Color.red;   
+        }
         
         if (Input.GetMouseButtonDown(0)) PlaceItem(gridCell);
     }

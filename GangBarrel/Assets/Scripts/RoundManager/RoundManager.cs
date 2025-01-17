@@ -1,4 +1,4 @@
-using System;
+using UniRx;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -25,7 +25,15 @@ public class RoundManager : MonoBehaviour
 
     public int remainingActions = 0;
     //private const int MaxActionsPerTurn = 5; // Max actions for both player and enemies
-    public bool isCombatActive = false;
+    public ReactiveProperty<bool> isCombatActive = new ReactiveProperty<bool>(false);
+
+    private void Awake()
+    {
+        isCombatActive.Subscribe(inCombat =>
+        {
+            endTurnEarly.interactable = inCombat;
+        });
+    }
 
     private void Start()
     {
@@ -37,9 +45,9 @@ public class RoundManager : MonoBehaviour
     {
         turnTextBackground.SetActive(true);
 
-        if (!isCombatActive)
+        if (!isCombatActive.Value)
         {
-            isCombatActive = true;
+            isCombatActive.Value = true;
             StartPlayerTurn();
         }
     }
@@ -63,12 +71,12 @@ public class RoundManager : MonoBehaviour
     // (player, -1), (enemy, 0)
     public void StartEnemyTurn()
     {
-        if (!isCombatActive)
+        if (!isCombatActive.Value)
             return;
         
         if (activeEnemies.Count == 0)
         {
-            if (isCombatActive)
+            if (isCombatActive.Value)
             {
                 EndCombat();
                 return;
@@ -93,6 +101,8 @@ public class RoundManager : MonoBehaviour
     
     public void DecrementActions(int amount)
     {
+        if (!isCombatActive.Value)
+            return;
         var change = amount;
         if (amount > remainingActions)
         {
@@ -139,9 +149,9 @@ public class RoundManager : MonoBehaviour
 
     public void EndCombat()
     {
-        if(!isCombatActive) return;
+        if(!isCombatActive.Value) return;
         
-        isCombatActive = false;
+        isCombatActive.Value = false;
         currentTurnIndex = -1;
         turnText.text = "Combat Ended!";
         turnText.color = Color.gray;
@@ -169,7 +179,7 @@ public class RoundManager : MonoBehaviour
         {
             activeEnemies.Remove(enemy);
 
-            if (activeEnemies.Count == 0 && isCombatActive)
+            if (activeEnemies.Count == 0 && isCombatActive.Value)
             {
                 EndCombat();
             }

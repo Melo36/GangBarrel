@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
@@ -12,7 +13,12 @@ public class CameraFollow : MonoBehaviour
     public Transform currentTarget; // Current target for the camera to follow
 
     public bool targetReached;
-    
+
+    private void Awake()
+    {
+        player = FindObjectOfType<PlayerController>().gameObject.transform;
+    }
+
     void Start()
     {
         // Calculate the initial offset between the camera and the player

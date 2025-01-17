@@ -46,7 +46,7 @@ public class EnemyController : MonoBehaviour
 
     public void StartEnemyTurn()
     {
-        if (roundManager.isCombatActive && isInTurn)
+        if (roundManager.isCombatActive.Value && isInTurn)
         {
             currentActions = maxActions;
             var dest = Vector3.zero;
