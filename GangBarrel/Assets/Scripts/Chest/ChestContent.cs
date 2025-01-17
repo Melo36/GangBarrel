@@ -17,7 +17,6 @@ namespace Chest
         private void Awake()
         {
             promptManager = FindObjectOfType<PromptManager>();
-            Debug.Log($"promptManager == null : {promptManager == null}");
             promptManager.xButton.onClick.AddListener(HideChestContent);
         }
 

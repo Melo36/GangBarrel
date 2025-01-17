@@ -46,8 +46,8 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Bullet"))
         {
-            Debug.Log("!!!!!!!!!!Player was hit by a bullet.");
             health.Value--;
+            Debug.Log("!!!!!!!!!!Player was hit by a bullet.");
         }
     }
 
@@ -88,7 +88,7 @@ public class PlayerController : MonoBehaviour
                     break;
             }
         });
-        /*
+        
         health.Subscribe(newValue =>
         {
             playerUI.UpdateLifeUI(newValue);
@@ -98,7 +98,6 @@ public class PlayerController : MonoBehaviour
                 promptManager.ShowGameOverScreen();
             }
         });
-        */
     }
 
     private void Update()
@@ -214,13 +213,10 @@ public class PlayerController : MonoBehaviour
         buttonTextMesh.text = shootMode ? "Move" : "Shoot";
         currentModeTextMesh.text = shootMode ? "Currently: Shoot Mode" : "Currently: Move Mode";
         currentModeTextMesh.color = shootMode ? Color.red : Color.green;
-
-        Debug.Log($"Mode changed to: {(shootMode ? "Shoot Mode" : "Move Mode")}");
     }
 
     private void HandleWalkMode(Vector3 mousePosition, float distance)
     {
-        Debug.Log("HandleWalkMode");
         if (CanTraversePath(transform.position, mousePosition))
         {
             distanceFrozen = true;
@@ -239,7 +235,6 @@ public class PlayerController : MonoBehaviour
                 Destroy(distanceTextInstance.gameObject);
                 distanceTextInstance = null;
             }
-            Debug.Log("Set AI Target");
             // Set a new AI target and display updated distance text
             SetAITarget(mousePosition);
             UpdateDistanceText(mousePosition, distance);

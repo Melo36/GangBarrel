@@ -20,7 +20,6 @@ namespace GameManager
                 Debug.LogError("No AstarPath component found!");
                 return;
             }
-            Debug.Log("Astar.active.Scan()");
             AstarPath.active.Scan();
         }
 

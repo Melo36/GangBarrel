@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,7 +35,6 @@ public class RoundManager : MonoBehaviour
 
     public void StartCombat()
     {
-        Debug.Log("Start Combat");
         turnTextBackground.SetActive(true);
 
         if (!isCombatActive)
@@ -45,7 +46,6 @@ public class RoundManager : MonoBehaviour
 
     public void StartPlayerTurn()
     {
-        Debug.Log("Start Player Turn");
         currentTurnIndex = -1; // Player's turn
         
         remainingActions = playerController.maxActions;
@@ -58,7 +58,6 @@ public class RoundManager : MonoBehaviour
         cameraFollow.SetTarget(playerController.transform);
         playerController.StopMovement();
 
-        Debug.Log($"Player turn started with {remainingActions} actions.");
     }
 
     // (player, -1), (enemy, 0)
@@ -75,13 +74,11 @@ public class RoundManager : MonoBehaviour
                 return;
             }
         }
-
-        Debug.Log($"currentTurnIndex = {currentTurnIndex}");
         
         var currentEnemy = activeEnemies[currentTurnIndex];
 
         // Set remaining actions for this enemy
-        remainingActions = currentEnemy.movementRange;
+        remainingActions = currentEnemy.maxActions;
         remainingActionsText.text = "Remaining Actions: " + remainingActions;
 
         turnText.text = $"Enemy {currentTurnIndex + 1}'s Turn";
@@ -96,29 +93,24 @@ public class RoundManager : MonoBehaviour
     
     public void DecrementActions(int amount)
     {
-        if(amount > remainingActions)
+        var change = amount;
+        if (amount > remainingActions)
+        {
             Debug.LogError("You can not decrement more actions, than you have!");
-        remainingActions-=amount;
+            change = remainingActions;
+        }
+        remainingActions-=change;
         
         remainingActionsText.text = "Remaining Actions: " + remainingActions;
-        
-        if (remainingActions <= 0)
-        {
-            Debug.Log("No actions left. Ending turn.");
-            EndCurrentTurn();
-        }
     }
 
     public void EndCurrentTurn()
     {
-        Debug.Log($"EndCurrentTurn called. Current turn index before: {currentTurnIndex}");
-
         if (currentTurnIndex == -1)
         {
             // Player's turn is ending, switching to first enemy
             playerController.isInTurn = false;
             currentTurnIndex = 0;
-            Debug.Log($"Ending player turn, switching to enemy {currentTurnIndex}");
             StartEnemyTurn();
         }
         else
@@ -133,14 +125,12 @@ public class RoundManager : MonoBehaviour
             {
                 // Last enemy finished, back to player
                 currentTurnIndex = -1;
-                Debug.Log("Last enemy finished, switching to player");
                 StartPlayerTurn();
             }
             else
             {
                 // More enemies to go
                 currentTurnIndex++;
-                Debug.Log($"Switching to next enemy {currentTurnIndex}");
                 StartEnemyTurn();
             }
         }

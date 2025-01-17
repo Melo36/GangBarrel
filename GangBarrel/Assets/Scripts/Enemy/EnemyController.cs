@@ -2,14 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Pathfinding;
+using UniRx;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 public class EnemyController : MonoBehaviour
 {
     [Header("Settings")]
-    public int movementRange = 3; // Enemy's maximum movement range per turn
+    public int maxActions = 3; // Enemy's maximum movement range per turn
+    private int currentActions;
     private bool canMove = false;
     public bool isInTurn;
     public float shootingDistance;
@@ -31,8 +35,6 @@ public class EnemyController : MonoBehaviour
         ShortestPathTowardsAirpath,
         ShortestPathTowardsActualPath
     }
-
-    
     
     public EnemyBehaviour enemyBehaviour;
 
@@ -46,7 +48,7 @@ public class EnemyController : MonoBehaviour
     {
         if (roundManager.isCombatActive && isInTurn)
         {
-            Debug.Log("Now the enemy should move towards that middle of the line");
+            currentActions = maxActions;
             var dest = Vector3.zero;
             switch (enemyBehaviour)
             {
@@ -111,10 +113,16 @@ public class EnemyController : MonoBehaviour
             aiDestinationSetter.target = null;
         }
 
-        // Clear the path visualization
-        ClearLineRenderer();
-        
-        roundManager.DecrementActions(movementRange);
+        // If we have reached our desired target and still have remaining actions, then we can shoot
+        if (currentActions != 0)
+        {
+            Debug.Log($"!!!!!!SHOOOOOTING!!!!!! {currentActions} times!!");
+            Shoot();
+        }
+        else
+        {
+            roundManager.EndCurrentTurn();
+        }
     }
     
     private void ClearLineRenderer()
@@ -129,6 +137,60 @@ public class EnemyController : MonoBehaviour
     
     #region ADVANCED
     
+    private Vector3 FindPointAlongPlayGoalPath()
+    {
+        var playerPos = roundManager.playerController.transform.position;
+        var playerGoalPos = roundManager.playersGoal.position;
+        var enemyPos = transform.position;
+        
+        // 3. Use A* to find path and move towards target point 
+        Path pathPlayer2PlayerGoal = ABPath.Construct(playerPos, playerGoalPos, null);
+        AstarPath.StartPath(pathPlayer2PlayerGoal);
+        pathPlayer2PlayerGoal.BlockUntilCalculated();
+        
+        // Compute the farthest point, so enemy can walk towards it 
+        var farthestPointFromPlayerInEnemyShootingRange = pathPlayer2PlayerGoal.vectorPath
+            .Take(pathPlayer2PlayerGoal.vectorPath.Count - 1)  // Exclude last element
+            .Where((item, index) => 
+                Vector3.Distance(pathPlayer2PlayerGoal.vectorPath[index + 1], playerPos) > shootingDistance)
+            .FirstOrDefault();
+        
+        // can enemy walk towards that point, considering the remaining action points
+        Path pathEnemy2DesiredTarget = ABPath.Construct(transform.position, farthestPointFromPlayerInEnemyShootingRange, null);
+        AstarPath.StartPath(pathEnemy2DesiredTarget);
+        pathEnemy2DesiredTarget.BlockUntilCalculated();
+
+        float travelDistance = 0f;
+        
+        if (pathEnemy2DesiredTarget.vectorPath.Count >= 2)
+        {
+            for (int i = 0; i < pathEnemy2DesiredTarget.vectorPath.Count - 1; i++)
+            {
+                var segment = Vector3.Distance(pathEnemy2DesiredTarget.vectorPath[i + 1],
+                    pathEnemy2DesiredTarget.vectorPath[i]);
+                if (Mathf.CeilToInt(segment + travelDistance) <= maxActions)
+                {
+                    travelDistance += segment;
+                }
+                else
+                {
+                    currentActions -= Mathf.CeilToInt(travelDistance);
+                    roundManager.DecrementActions(Mathf.CeilToInt(travelDistance));
+                    return pathEnemy2DesiredTarget.vectorPath[i];
+                }
+            }    
+        }
+        currentActions -= Mathf.CeilToInt(travelDistance);
+        roundManager.DecrementActions(Mathf.CeilToInt(travelDistance));
+        return pathEnemy2DesiredTarget.vectorPath[^1];
+    }
+
+    private bool InShootingRangeTowardsPlayer(Vector3 pos)
+    {
+        return Vector3.Distance(pos, player.transform.position) >= shootingDistance;
+    }
+    
+    /*
     private Vector3 FindPointAlongPlayGoalPath()
     {
         var playerPos = roundManager.playerController.transform.position;
@@ -184,9 +246,11 @@ public class EnemyController : MonoBehaviour
 
         return finalDestination;
     }
+    */
     
     private void UseRemainingActionsForShooting(Vector3 finalPosition)
     {
+        Debug.Log("UseRemainingActionsForShooting!");
         // Check if we reached our desired position (with some tolerance)
         float distanceToDesiredPosition = Vector3.Distance(transform.position, finalPosition);
         if (distanceToDesiredPosition <= 0.5f) // 0.5f is tolerance
@@ -218,20 +282,16 @@ public class EnemyController : MonoBehaviour
     
     #endregion
 
+    /// <summary>
+    /// Enemy starts shooting if he is in his desired position and has nothing else to do.
+    /// </summary>
     private void Shoot()
     {
-        Debug.Log($"Enemy {gameObject.name} is shooting at player!");
-        // Implement shooting logic here
-        // For example:
-        // - Check line of sight
-        // - Apply damage
-        // - Play effects
-        // - Use action points
-        
+        // Perform initial shot
         GameObject bulletObject = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
         Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
         Destroy(bulletObject, 5f);
-        
+
         Vector3 direction = (player.position - transform.position).normalized;
         direction.y = 0.01f;
         bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
@@ -239,9 +299,45 @@ public class EnemyController : MonoBehaviour
         roundManager.DecrementActions(1);
         Debug.Log("Bullet shot successfully!");
 
-        // Set the state back to Idle
-        Debug.Log("Player state set back to Idle.");
-        
+        // If we still have actions, schedule next shot
+        if (roundManager.remainingActions > 0)
+        {
+            Observable.Timer(TimeSpan.FromSeconds(2))
+                .Subscribe(_ => Shoot())
+                .AddTo(this);
+        }
+        else
+        {
+            roundManager.EndCurrentTurn();
+        }
+    }
+
+    private void RecursiveShoot()
+    {
+        // Perform the shot
+        ExecuteShot();
+
+        // If we still have actions after this shot, schedule the next one
+        if (roundManager.remainingActions > 0)
+        {
+            Observable.Timer(TimeSpan.FromSeconds(2))
+                .Subscribe(_ => RecursiveShoot())
+                .AddTo(this);
+        }
+    }
+
+    private void ExecuteShot()
+    {
+        GameObject bulletObject = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
+        Destroy(bulletObject, 5f);
+
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0.01f;
+        bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
+
+        roundManager.DecrementActions(1);
+        Debug.Log("Bullet shot successfully!");
     }
 
     

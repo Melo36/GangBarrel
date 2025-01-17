@@ -45,7 +45,6 @@ public class Collectible : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player entered collectible range");
             playerInRange = true;
             
             // if the player has a fuse, then we call the promptManager from the FusePlacement class. 
@@ -63,7 +62,6 @@ public class Collectible : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player exited collectible range");
             playerInRange = false;
 
             promptManager.StopInteractionPrompt();

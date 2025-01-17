@@ -48,7 +48,6 @@ public class CombatZone : MonoBehaviour
         if (isInCombat) return;
         
         isInCombat = true;
-        Debug.Log("Combat Zone: Engaging combat!");
         roundManager.AddEnemyToCombat(enemyController);
         roundManager.StartCombat();
     }
