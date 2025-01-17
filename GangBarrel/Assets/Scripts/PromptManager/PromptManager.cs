@@ -36,7 +36,16 @@ public class PromptManager : MonoBehaviour
     [SerializeField]private TextMeshProUGUI tutorialDescriptionText;
 
     [SerializeField] private Button xButtonTutorial;
-    
+
+
+    [Header("References")] [SerializeField]
+    private ItemUsage itemUsage;
+
+    private void Awake()
+    {
+        itemUsage = FindObjectOfType<ItemUsage>();
+    }
+
     private void Start()
     {
         interactionPromptBackground.SetActive(false);
@@ -64,6 +73,8 @@ public class PromptManager : MonoBehaviour
         oneImagePanel.SetActive(!multipleImages);
         multipleImagesPanel.SetActive(multipleImages);
 
+        itemUsage.CancelItemPlacement();
+        
         // Pause the game
         Time.timeScale = 0;
         

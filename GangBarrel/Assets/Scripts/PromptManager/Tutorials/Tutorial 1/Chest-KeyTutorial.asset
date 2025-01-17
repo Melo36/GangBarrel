@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74bb6c5f9249dab46841502efdfe556a, type: 3}
+  m_Name: Chest-KeyTutorial
+  m_EditorClassIdentifier: 
+  header: Keys and Chests
+  description: To uncover the secrets of each map, you'll need to unlock the chests
+    scattered across it. These chests contain valuable items that will aid you on
+    your journey. However, you'll need a key to open them, so be sure to keep an
+    eye out for one as you explore. The treasures inside could make all the difference!
+  explanationImage1: {fileID: 21300000, guid: b3159c6362b1b7445b711ff63ba19690, type: 3}
+  explanationImage2: {fileID: 21300000, guid: aeb9ca57396f4fb48b98b3a61ed3e264, type: 3}
+  explanationImage3: {fileID: 0}

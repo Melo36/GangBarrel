@@ -177,11 +177,14 @@ public class ItemUsage : MonoBehaviour
         Debug.Log("Graph updated at position: " + position);
     }
     
-    private void CancelItemPlacement()
+    public void CancelItemPlacement()
     {
         if (placementObjectInstance) Destroy(placementObjectInstance);
         placementObjectInstance = null;
         isPlacing = false;
+        
+        // When the item placement is cancelled, we need to add 
+        
         Debug.Log("Plank placement canceled.");
     }
  
