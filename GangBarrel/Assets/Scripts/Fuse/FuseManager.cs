@@ -74,6 +74,7 @@ public class FuseManager : MonoBehaviour
     {
         explosiveBarrels = GameObject.FindGameObjectsWithTag("Barrel");
         mainCamera = Camera.main;
+        playerInventory = FindObjectOfType<InventoryManager>();
         
         if (fusePrefab == null)
         {
