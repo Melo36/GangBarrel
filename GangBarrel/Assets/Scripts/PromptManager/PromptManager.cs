@@ -20,6 +20,7 @@ public class PromptManager : MonoBehaviour
     public GameObject chestContentParentObject;     // ScreenSpaceCanvas/ChestContentPanel/Background/ScrollArea/ItemsMask/Content
 
     [Header("Game Over")] public GameObject gameOverPanel;
+    [Header("Pause")] public GameObject pausePanel;
 
     [Header("Tutorials")]
     [SerializeField]private GameObject tutorialPanel;
@@ -105,7 +106,18 @@ public class PromptManager : MonoBehaviour
     {
         gameOverPanel.SetActive(true);
     }
-    
+
+    public void OpenPauseScreen()
+    {
+        Time.timeScale = 0f;
+        pausePanel.gameObject.SetActive(true);
+    }
+
+    public void ClosePauseScreen()
+    {
+        Time.timeScale = 1f;
+        pausePanel.gameObject.SetActive(false);
+    }
     public void CloseTutorialPanel()
     {
         // Go back to the game

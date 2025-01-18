@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// Script is not really used and could be deleted!
+/// </summary>
 public class NearestObjectDebugVisualizer : MonoBehaviour
 {
     [Header("References")]
@@ -83,8 +86,8 @@ public class NearestObjectDebugVisualizer : MonoBehaviour
         Vector3 baseRight = Quaternion.Euler(0, 45, 0) * direction * legLength + origin;
 
         Gizmos.color = Color.magenta;
-        Handles.DrawBezier(origin, baseLeft, origin, baseLeft, Color.magenta, null, 2f);
-        Handles.DrawBezier(origin, baseRight, origin, baseRight, Color.magenta, null, 2f);
-        Handles.DrawBezier(baseLeft, baseRight, baseLeft, baseRight, Color.magenta, null, 2f);
+        //Handles.DrawBezier(origin, baseLeft, origin, baseLeft, Color.magenta, null, 2f);
+        //Handles.DrawBezier(origin, baseRight, origin, baseRight, Color.magenta, null, 2f);
+        //Handles.DrawBezier(baseLeft, baseRight, baseLeft, baseRight, Color.magenta, null, 2f);
     }
 }

@@ -53,6 +53,7 @@ public class GridLoader : MonoBehaviour
             foreach (var tileInformation in gridInformation.tilemapData.tiles)
             {
                 Debug.Log(tilePath + tileInformation.tileName);
+                #if UNITY_EDITOR // TODO: make independent from Editor
                 TileBase tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath + tileInformation.tileName + ".asset"); // Assumes tiles are stored as assets in Resources
                 if (tile != null)
                 {
@@ -63,6 +64,7 @@ public class GridLoader : MonoBehaviour
                 {
                     Debug.LogError($"Tile {tileInformation.tileName} not found.");
                 }
+                #endif
             }
         }
         else

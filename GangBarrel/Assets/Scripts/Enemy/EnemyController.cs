@@ -343,8 +343,10 @@ public class EnemyController : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Enemy shot.");
+
         // Enemy can die in explosion or by bullet.
-        if (other.CompareTag("ExplosionTrigger") && other.CompareTag("Bullet"))
+        if (other.CompareTag("ExplosionTrigger") || other.CompareTag("Bullet"))
         {
             roundManager.RemoveEnemyFromCombat(this);
             Destroy(gameObject);

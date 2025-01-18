@@ -668,6 +668,7 @@ GameObject:
   - component: {fileID: 922967253}
   - component: {fileID: 922967252}
   - component: {fileID: 922967251}
+  - component: {fileID: 922967254}
   m_Layer: 5
   m_Name: Play Level 1
   m_TagString: Untagged
@@ -739,10 +740,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1481347018}
-        m_TargetAssemblyTypeName: RestartLevel, Assembly-CSharp
-        m_MethodName: startNextLevel
-        m_Mode: 1
+      - m_Target: {fileID: 922967254}
+        m_TargetAssemblyTypeName: ChangeScene, Assembly-CSharp
+        m_MethodName: LoadScene
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -789,6 +790,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 922967249}
   m_CullTransparentMesh: 1
+--- !u!114 &922967254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922967249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05946ad73406b4f47bd97723ac43cdd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1253042064
 GameObject:
   m_ObjectHideFlags: 0
@@ -1113,6 +1126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3985077c5b45049249c9b5e27c51c383, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  amountOfLevels: 3
 --- !u!1 &1575724997
 GameObject:
   m_ObjectHideFlags: 0

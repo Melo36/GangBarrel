@@ -29,6 +29,8 @@ public class RoundManager : MonoBehaviour
 
     private void Awake()
     {
+        playerController = FindObjectOfType<PlayerController>();
+        
         isCombatActive.Subscribe(inCombat =>
         {
             endTurnEarly.interactable = inCombat;

@@ -6522,6 +6522,7 @@ MonoBehaviour:
   itemsUI: []
   playerController: {fileID: 0}
   itemUsage: {fileID: 0}
+  keys: []
 --- !u!114 &1917998856535723899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6579,17 +6580,24 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1796674677306770091, guid: 63fd27987330b4f17af026d44e0c955f, type: 3}
   mainCamera: {fileID: 0}
   aiDestinationSetter: {fileID: 3202873328592191341}
-  tileMap: {fileID: 0}
   inventoryManager: {fileID: -6740064599714374930}
   worldSpaceCanvas: {fileID: 0}
   roundManager: {fileID: 0}
   lineRenderer: {fileID: 0}
+  fuseManager: {fileID: 0}
+  animator: {fileID: 0}
+  rigidbody: {fileID: 0}
+  moveShootToggle: {fileID: 0}
   buttonTextMesh: {fileID: 0}
   currentModeTextMesh: {fileID: 0}
   distanceTextPrefab: {fileID: 0}
   bulletSpeed: 15
   maxActions: 5
   isInTurn: 0
+  currentState:
+    value: 0
+  health:
+    value: 3
   tilemapGrid: {fileID: 0}
 --- !u!1 &4638613242386495318
 GameObject:

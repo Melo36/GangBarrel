@@ -19,9 +19,6 @@ public class RockExplosionController : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"Explosion triggered by {other.gameObject.name}");
-
-        
         // Only a barrel gets destroyed by a bullet
         if (other.gameObject.CompareTag("ExplosionTrigger"))
         {

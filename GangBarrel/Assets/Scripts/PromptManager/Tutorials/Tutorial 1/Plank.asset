@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Plank
   m_EditorClassIdentifier: 
   header: Place Plank
-  description: Select the plank from your inventory and place it over a gap to cross
-    it.
+  description: "Select a plank from your inventory and aim carefully to place it
+    over a gap. Once placed, the plank will allow you to cross\u2014but remember,
+    planks can only be used once! Plan your moves wisely to avoid getting stuck!"
   explanationImage1: {fileID: 21300000, guid: 4ad011ca139f947a0a8bcb1bc73bb5a8, type: 3}
   explanationImage2: {fileID: 0}
   explanationImage3: {fileID: 0}

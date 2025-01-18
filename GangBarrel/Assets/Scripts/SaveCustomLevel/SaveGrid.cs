@@ -39,8 +39,10 @@ public class SaveGrid : MonoBehaviour
         }
 
         // Save the scene
+        #if UNITY_EDITOR // TODO: make independent from Editor
         UnityEditor.SceneManagement.EditorSceneManager.SaveScene(newScene, scenePath);
-
+        #endif
+        
         Debug.Log($"'{gridName}' has been moved to the new scene: {newScene.name} and saved to {scenePath}");
     }
 }

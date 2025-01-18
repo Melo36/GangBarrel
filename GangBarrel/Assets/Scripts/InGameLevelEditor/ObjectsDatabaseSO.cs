@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using Tile = UnityEngine.Tilemaps.Tile;
 
 [CreateAssetMenu]
 public class ObjectsDatabaseSO : ScriptableObject

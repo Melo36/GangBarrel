@@ -264,7 +264,7 @@ public class PlayerController : MonoBehaviour
             currentState.Value = PlayerState.Shoot;
 
             Vector3 direction = (targetPosition - transform.position).normalized;
-            direction.y = 0.01f;
+            direction.y = 0.4f;
             bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
 
             inventoryManager.RemoveItem(bulletItem);
