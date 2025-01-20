@@ -144,6 +144,9 @@ public class ItemUsage : MonoBehaviour
             var cellCenterWorld = tilemapGrid.GetCellCenterWorld(gridCell);
             UpdateGraphAtPosition(cellCenterWorld, true);
 
+            // slight offset in y direction for the planks
+            placementObjectInstance.transform.position -= new Vector3(0, 0.025f, 0);
+            
             // We need to set the water objects layer to "Default", as otherwise rescanning the map leads to the nodes being unwalkable again!
             var water = FindClosestObjectWithTag("Water", placementObjectInstance.transform);
             if (water != null)

@@ -17,6 +17,6 @@ MonoBehaviour:
     has a set number of Action Points, shown at the top of the screen along with
     whose turn it is. Use Action Points to move (distance displayed in text) or shoot.
     Plan carefully\u2014every point matters! "
-  explanationImage1: {fileID: 0}
+  explanationImage1: {fileID: 21300000, guid: 935adc06d1ebc4943afa20326a8cfb68, type: 3}
   explanationImage2: {fileID: 0}
   explanationImage3: {fileID: 0}

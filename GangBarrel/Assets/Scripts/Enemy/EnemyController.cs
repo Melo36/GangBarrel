@@ -171,6 +171,7 @@ public class EnemyController : MonoBehaviour
                 if (Mathf.CeilToInt(segment + travelDistance) <= maxActions)
                 {
                     travelDistance += segment;
+                    currentActions -= Mathf.CeilToInt(segment);
                 }
                 else
                 {
@@ -287,12 +288,15 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     private void Shoot()
     {
+        Vector3 direction = (player.position - transform.position).normalized;
+
+        Vector3 offset = direction * 1.5f;
+        
         // Perform initial shot
-        GameObject bulletObject = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        GameObject bulletObject = Instantiate(bulletPrefab, transform.position + offset, Quaternion.identity);
         Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
         Destroy(bulletObject, 5f);
-
-        Vector3 direction = (player.position - transform.position).normalized;
+        
         direction.y = 0.01f;
         bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
 
@@ -311,38 +315,6 @@ public class EnemyController : MonoBehaviour
             roundManager.EndCurrentTurn();
         }
     }
-
-    private void RecursiveShoot()
-    {
-        // Perform the shot
-        ExecuteShot();
-
-        // If we still have actions after this shot, schedule the next one
-        if (roundManager.remainingActions > 0)
-        {
-            Observable.Timer(TimeSpan.FromSeconds(2))
-                .Subscribe(_ => RecursiveShoot())
-                .AddTo(this);
-        }
-    }
-
-    private void ExecuteShot()
-    {
-        Vector3 direction = (player.position - transform.position).normalized;
-
-        Vector3 offset = direction * 1.5f;
-        
-        GameObject bulletObject = Instantiate(bulletPrefab, transform.position + offset, Quaternion.identity);
-        Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
-        Destroy(bulletObject, 5f);
-        
-        direction.y = 0.01f;
-        bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
-
-        roundManager.DecrementActions(1);
-        Debug.Log("Bullet shot successfully!");
-    }
-
     
     private void OnTriggerEnter(Collider other)
     {
@@ -410,27 +382,5 @@ public class EnemyController : MonoBehaviour
         // Otherwise, calculate a new point within the restricted range
         Vector3 direction = (targetPoint - enemyPos).normalized; // Direction toward the target
         return enemyPos + direction * maxDistance; // Move only the allowed distance
-    }
-    
-    private bool CanTraversePath(Vector3 start, Vector3 end)
-    {
-        GraphNode startNode = AstarPath.active.GetNearest(start).node;
-        GraphNode endNode = AstarPath.active.GetNearest(end).node;
-
-        if (startNode == null || endNode == null || !startNode.Walkable || !endNode.Walkable)
-        {
-            return false;
-        }
-
-        return PathUtilities.IsPathPossible(startNode, endNode);
-    }
-
-    private void DrawPath(Vector3[] pathPoints)
-    {
-        if (pathLineRenderer != null)
-        {
-            pathLineRenderer.positionCount = pathPoints.Length;
-            pathLineRenderer.SetPositions(pathPoints);
-        }
     }
 }
