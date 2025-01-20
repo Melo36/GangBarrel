@@ -12,7 +12,7 @@ public class WinCondition : MonoBehaviour
         {
             Debug.Log("player wins!");
             Destroy(gameObject);
-            SceneManager.LoadScene("Congrats");
+            SceneChanger.Instance.LoadCongratsScreen();
         }
     }
 }

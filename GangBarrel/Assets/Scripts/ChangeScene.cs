@@ -9,4 +9,14 @@ public class ChangeScene : MonoBehaviour
     {
         SceneManager.LoadScene(sceneName);
     }
+
+    public void loadNextLevel()
+    {
+        SceneChanger.Instance.LoadNextLevel();
+    }
+
+    public void loadCongratsScreen()
+    {
+        SceneChanger.Instance.LoadCongratsScreen();
+    }
 }
