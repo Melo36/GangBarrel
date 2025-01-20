@@ -15,13 +15,19 @@ public class TutorialTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        bool useMultipleImages = !(tutorial.explanationImage2 == null && tutorial.explanationImage3 == null);
-        promptManager.OpenTutorialPanel(tutorial, useMultipleImages);
-        Destroy(gameObject);
+        if (other.gameObject.CompareTag("Player"))
+        {
+            bool useMultipleImages = !(tutorial.explanationImage2 == null && tutorial.explanationImage3 == null);
+            promptManager.OpenTutorialPanel(tutorial, useMultipleImages);
+            Destroy(gameObject);   
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        promptManager.CloseTutorialPanel();
+        if (other.gameObject.CompareTag("Player"))
+        {
+            promptManager.CloseTutorialPanel();   
+        }
     }
 }

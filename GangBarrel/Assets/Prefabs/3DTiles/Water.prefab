@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6302282053751123482}
   m_Layer: 8
   m_Name: WaterObject
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 7152715283047008055}
   m_Layer: 8
   m_Name: Water
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

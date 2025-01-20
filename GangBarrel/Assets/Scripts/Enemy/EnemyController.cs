@@ -328,11 +328,14 @@ public class EnemyController : MonoBehaviour
 
     private void ExecuteShot()
     {
-        GameObject bulletObject = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Vector3 direction = (player.position - transform.position).normalized;
+
+        Vector3 offset = direction * 1.5f;
+        
+        GameObject bulletObject = Instantiate(bulletPrefab, transform.position + offset, Quaternion.identity);
         Physics.IgnoreCollision(bulletObject.GetComponent<Collider>(), GetComponentInChildren<Collider>());
         Destroy(bulletObject, 5f);
-
-        Vector3 direction = (player.position - transform.position).normalized;
+        
         direction.y = 0.01f;
         bulletObject.GetComponent<Rigidbody>().velocity = direction * bulletSpeed;
 

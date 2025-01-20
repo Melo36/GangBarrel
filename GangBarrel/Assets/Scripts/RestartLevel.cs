@@ -8,5 +8,6 @@ public class RestartLevel : MonoBehaviour
     public void restartLevel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Time.timeScale = 1f;
     }
 }

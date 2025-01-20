@@ -186,10 +186,13 @@ public class PlayerController : MonoBehaviour
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-
+        
         if (roundManager.isCombatActive.Value && !isInTurn)
             return;
 
+        Debug.Log("!!HandleMouseInput()");
+
+        
         Vector3 mousePosition = GetMouseWorldPosition();
         float distance = CalculatePathDistance(transform.position, mousePosition);
 

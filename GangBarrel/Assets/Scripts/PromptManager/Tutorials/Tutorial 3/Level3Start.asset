@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74bb6c5f9249dab46841502efdfe556a, type: 3}
+  m_Name: Level3Start
+  m_EditorClassIdentifier: 
+  header: Level 3
+  description: "Welcome to the next challenge. This level will put everything you\u2019ve
+    learned so far to the test. Your objective is simple: find the goal.  But it
+    won\u2019t be easy. Enemies are now in play and will do whatever they can to
+    stop you. Stay sharp and use your tools wisely. Success lies in strategy and
+    skill.  Good luck\u2014it's time to prove yourself."
+  explanationImage1: {fileID: 21300000, guid: b7ad4458b6398b242aa81b4fb834e11b, type: 3}
+  explanationImage2: {fileID: 0}
+  explanationImage3: {fileID: 0}

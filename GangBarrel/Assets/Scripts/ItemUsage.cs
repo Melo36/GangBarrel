@@ -24,7 +24,7 @@ public class ItemUsage : MonoBehaviour
     private Item itemToPlace;
     private GameObject placementObject;
     
-    private GameObject placementObjectInstance;
+    public GameObject placementObjectInstance;
     
     private bool isPlacing;
 
@@ -141,7 +141,16 @@ public class ItemUsage : MonoBehaviour
         
         if (item != null && item.itemType == Item.ItemType.Plank)
         {
-            UpdateGraphAtPosition(tilemapGrid.GetCellCenterWorld(gridCell), true);
+            var cellCenterWorld = tilemapGrid.GetCellCenterWorld(gridCell);
+            UpdateGraphAtPosition(cellCenterWorld, true);
+
+            // We need to set the water objects layer to "Default", as otherwise rescanning the map leads to the nodes being unwalkable again!
+            var water = FindClosestObjectWithTag("Water", placementObjectInstance.transform);
+            if (water != null)
+            {
+                water.layer = LayerMask.NameToLayer("Default");
+            }
+            
             Destroy(placementObjectInstance.GetComponent<Collectible>());
         }
         
@@ -155,6 +164,29 @@ public class ItemUsage : MonoBehaviour
         }
         
         inventoryManager.RemoveItem(item);
+    }
+    
+    private GameObject FindClosestObjectWithTag(string targetTag, Transform fromPosition)
+    {
+        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag(targetTag);
+    
+        if (taggedObjects.Length == 0)
+            return null;
+        
+        GameObject closest = null;
+        float closestDistance = Mathf.Infinity;
+    
+        foreach (GameObject obj in taggedObjects)
+        {
+            float distance = Vector3.Distance(fromPosition.position, obj.transform.position);
+            if (distance < closestDistance)
+            {
+                closest = obj;
+                closestDistance = distance;
+            }
+        }
+    
+        return closest;
     }
     
     public void UpdateGraphAtPosition(Vector3 position, bool walkable)

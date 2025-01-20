@@ -60,7 +60,15 @@ public class LevelEditorWindow : EditorWindow
                 {
                     // Set the default tile
                     tilemap.SetTile(tilePosition, waterTile);
-                    var waterObject = Instantiate(waterPrefab, worldPosition, Quaternion.identity);
+                    GameObject waterObject;
+                    
+                    // Instantiate the prefab instead of the GameObject. (only useful in UNITY_EDITOR mode.)
+                    #if UNITY_EDITOR
+                    waterObject = PrefabUtility.InstantiatePrefab(waterPrefab) as GameObject;
+                    waterObject.transform.position = worldPosition;
+                    #else
+                        waterObject = Instantiate(waterPrefab, worldPosition, Quaternion.identity);
+                    #endif
                     waterObject.transform.SetParent(waterParent.transform);
                 }
             }
