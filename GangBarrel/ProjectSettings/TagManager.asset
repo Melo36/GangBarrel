@@ -11,6 +11,14 @@ TagManager:
   - PickUpPlank
   - Water
   - CaveEntrance
+  - Explosion
+  - PickUp
+  - Place
+  - Shoot
+  - Steps
+  - OpenUI
+  - HoverButton
+  - ClickButton
   layers:
   - Default
   - TransparentFX
@@ -24,14 +32,14 @@ TagManager:
   - Plank
   - CombatZone
   - Enemy
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Explosion
+  - PickUpItem
+  - PlaceItem
+  - OpenUI
+  - ShootGun
+  - Steps
+  - HoverButton
+  - ClickButton
   - 
   - 
   - 

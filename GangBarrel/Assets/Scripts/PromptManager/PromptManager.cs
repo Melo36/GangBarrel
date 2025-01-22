@@ -38,6 +38,11 @@ public class PromptManager : MonoBehaviour
 
     [SerializeField] private Button xButtonTutorial;
 
+    //audio
+    [SerializeField] public AudioSource pickupBarrel;
+    [SerializeField] public AudioSource placeBarrel;
+    [SerializeField] public AudioSource openUI;
+
 
     [Header("References")] [SerializeField]
     private ItemUsage itemUsage;
@@ -100,29 +105,33 @@ public class PromptManager : MonoBehaviour
         
         // Activate the panel
         tutorialPanel.SetActive(true);
+        openUI.Play();
     }
 
     public void ShowGameOverScreen()
     {
+        openUI.Play();
         gameOverPanel.SetActive(true);
     }
 
     public void OpenPauseScreen()
     {
         Time.timeScale = 0f;
+        openUI.Play();
         pausePanel.gameObject.SetActive(true);
     }
 
     public void ClosePauseScreen()
     {
         Time.timeScale = 1f;
+        openUI.Play();
         pausePanel.gameObject.SetActive(false);
     }
     public void CloseTutorialPanel()
     {
         // Go back to the game
         Time.timeScale = 1;
-        
+        openUI.Play();
         tutorialPanel.SetActive(false);
     }
     

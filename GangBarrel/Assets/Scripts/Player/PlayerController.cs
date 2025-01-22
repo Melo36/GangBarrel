@@ -52,7 +52,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public AudioSource placeBarrel;
     [SerializeField] public AudioSource openUI;
     [SerializeField] public AudioSource explosion;
-    
+    [SerializeField] public AudioSource clickButton;
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -238,10 +239,12 @@ public class PlayerController : MonoBehaviour
     public void ToggleMode()
     {
         shootMode = !shootMode;
+        clickButton.Play();
 
         buttonTextMesh.text = shootMode ? "Move" : "Shoot";
         currentModeTextMesh.text = shootMode ? "Currently: Shoot Mode" : "Currently: Move Mode";
         currentModeTextMesh.color = shootMode ? Color.red : Color.green;
+        
     }
 
     private void HandleWalkMode(Vector3 mousePosition, float distance)

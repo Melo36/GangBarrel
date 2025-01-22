@@ -1,12 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BarrelExplosionController : MonoBehaviour
 {
     public ParticleSystem explosion;
     public GameObject explosionRadius;
+
+    [SerializeField] public AudioSource explosionSound;
 
     /// <summary>
     /// 
@@ -15,12 +19,21 @@ public class BarrelExplosionController : MonoBehaviour
     /// </summary>
     /// <param name="other"></param>
     /// <param name="fuseTrigger"></param>
+    /// 
+
+    private void Start()
+    {
+        explosionSound = GameObject.FindGameObjectWithTag("Explosion").GetComponent<AudioSource>();
+    }
+
+
     public void ExplosionTrigger(Collider other, bool fuseTrigger)
     {
         if (other == null && !fuseTrigger)
             Debug.LogError("Either you need a shot, or activate a fuse.");
         if (fuseTrigger || other.gameObject.CompareTag("Bullet") || other.gameObject.CompareTag("ExplosionTrigger"))
         {
+            explosionSound.Play();
             ParticleSystem particle = Instantiate(explosion, transform.position, Quaternion.identity);
             
             // Instantiate with the correct rotation based on player position
