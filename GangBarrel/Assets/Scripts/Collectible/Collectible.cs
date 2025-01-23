@@ -24,19 +24,25 @@ public class Collectible : MonoBehaviour
     public InventoryManager playerInventory;
     public GameManager.GameManager gameManager;
     private FuseManager fuseManager;
-    
+
+    //audio
+    [SerializeField] public AudioSource pickup;
+
+
     private void OnEnable()
     {
         promptManager = FindObjectOfType<PromptManager>();
         itemUsage = FindObjectOfType<ItemUsage>();
         playerInventory = FindObjectOfType<InventoryManager>();
         fuseManager = FindObjectOfType<FuseManager>();
+        pickup = GameObject.FindGameObjectWithTag("PickUp").GetComponent<AudioSource>();
     }
 
     void Update()
     {
         if (playerInRange && Input.GetKeyDown(KeyCode.E))
         {
+            pickup.Play();
             Collect();
         }
     }
@@ -82,9 +88,10 @@ public class Collectible : MonoBehaviour
             gameObject.SetActive(false);
             // Hide the prompt just in case
             promptManager.StopInteractionPrompt();
+            pickup.Play();
             return;
         }
-        
+        pickup.Play();
         // Destroying the gameobject and updating the graph.
         Destroy(gameObject);
 

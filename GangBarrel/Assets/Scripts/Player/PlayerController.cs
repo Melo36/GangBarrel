@@ -45,6 +45,16 @@ public class PlayerController : MonoBehaviour
     //[SerializeField] private GameObject plankPrefab;
     [SerializeField] private Grid tilemapGrid;
 
+    //audio controllers
+    [SerializeField] public AudioSource pickupBarrel;
+    [SerializeField] public AudioSource shoot;
+    [SerializeField] public AudioSource steps;
+    [SerializeField] public AudioSource placeBarrel;
+    [SerializeField] public AudioSource openUI;
+    [SerializeField] public AudioSource explosion;
+    [SerializeField] public AudioSource clickButton;
+
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Bullet"))
@@ -85,15 +95,23 @@ public class PlayerController : MonoBehaviour
             {   
                 case PlayerState.Idle:
                     animator.Play("Idle");
+                    steps.Stop();
+                    shoot.Stop();
                     break;
                 case PlayerState.Shoot:
                     animator.Play("Shoot");
+                    shoot.Play();
+                    steps.Stop();
                     break;
                 case PlayerState.Walk:
                     animator.Play("walk");
+                    steps.Play();
+                    shoot.Stop();
                     break;
                 default:
                     Debug.LogError("This is not a valid animation!");
+                    steps.Stop();
+                    shoot.Stop();
                     break;
             }
         });
@@ -221,10 +239,12 @@ public class PlayerController : MonoBehaviour
     public void ToggleMode()
     {
         shootMode = !shootMode;
+        clickButton.Play();
 
         buttonTextMesh.text = shootMode ? "Move" : "Shoot";
         currentModeTextMesh.text = shootMode ? "Currently: Shoot Mode" : "Currently: Move Mode";
         currentModeTextMesh.color = shootMode ? Color.red : Color.green;
+        
     }
 
     private void HandleWalkMode(Vector3 mousePosition, float distance)
