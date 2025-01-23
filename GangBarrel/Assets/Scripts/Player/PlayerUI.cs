@@ -16,10 +16,16 @@ public class PlayerUI : MonoBehaviour
     private void Awake()
     {
         playerController.health.Subscribe(value => { UpdateLifeUI(value >= 0 ? value : 0); });
+        lifeImage = GameObject.Find("Healthbar").GetComponent<Image>(); // TODO: stupid, but quick solution
     }
 
     public void UpdateLifeUI(int healthValue)
     {
+        if (lifeImage == null)
+        {
+            Debug.LogError("Life image is null!");
+            return;
+        }
         switch (healthValue)
         {
             case 0:

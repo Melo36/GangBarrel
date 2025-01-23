@@ -5097,7 +5097,7 @@ GameObject:
   - component: {fileID: 5266767254119713561}
   m_Layer: 0
   m_Name: Pickup Barrel
-  m_TagString: Untagged
+  m_TagString: PickUp
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5257,7 +5257,7 @@ GameObject:
   - component: {fileID: 1070966011917283083}
   m_Layer: 0
   m_Name: Open UI
-  m_TagString: Untagged
+  m_TagString: OpenUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6629,7 +6629,7 @@ GameObject:
   - component: {fileID: 6776346879949462384}
   m_Layer: 0
   m_Name: Place barrel
-  m_TagString: Untagged
+  m_TagString: Place
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7064,7 +7064,7 @@ MonoBehaviour:
   radius: 0.15
   height: 0.65
   canMove: 1
-  maxSpeed: 0.75
+  maxSpeed: 1.5
   gravity: {x: NaN, y: NaN, z: NaN}
   groundMask:
     serializedVersion: 2
@@ -7880,7 +7880,7 @@ GameObject:
   - component: {fileID: 4453446236953961058}
   m_Layer: 0
   m_Name: Steps
-  m_TagString: Untagged
+  m_TagString: Steps
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8209,7 +8209,7 @@ GameObject:
   - component: {fileID: 3664688030032911209}
   m_Layer: 0
   m_Name: Explosion
-  m_TagString: Untagged
+  m_TagString: Explosion
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8463,7 +8463,7 @@ GameObject:
   - component: {fileID: 3896618095658844310}
   m_Layer: 0
   m_Name: Shoot
-  m_TagString: Untagged
+  m_TagString: Shoot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

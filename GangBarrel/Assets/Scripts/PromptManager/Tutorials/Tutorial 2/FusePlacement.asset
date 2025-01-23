@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   header: Fuse
   description: In this level, you have a fuse to ignite barrels from a distance.
-    If you're near a barrel, press F to start placing the fuse, then hold F to lay
-    it down. The fuse has a limit, but you can connect more fuses to make it longer.
-    Use it wisely!
+    If you're near a barrel, <color=#0000FF>press and <u>hold</u> F</color> to start
+    placing the fuse. Pressing <color=#0000FF>ESC</color> cancels the placement.The
+    fuse has a limit, but you can connect more fuses to make it longer. Use it wisely!
   explanationImage1: {fileID: 21300000, guid: 2582fc18740f0a4439c5e50c0b77f0ad, type: 3}
   explanationImage2: {fileID: 0}
   explanationImage3: {fileID: 0}

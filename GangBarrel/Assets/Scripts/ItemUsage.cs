@@ -48,6 +48,11 @@ public class ItemUsage : MonoBehaviour
 
     private void Update()
     {
+        if (isPlacing && Input.GetKeyDown(KeyCode.Escape))
+        {
+            CancelItemPlacement();     
+        } 
+        
         if (isPlacing)
         {
             UpdatePlacement();
@@ -56,30 +61,73 @@ public class ItemUsage : MonoBehaviour
     
     private void UpdatePlacement()
     {
-        if (!placementObjectInstance) return;
-
+        if (placementObjectInstance == null) return;
+        
         Vector3 mouseWorldPosition = GetMouseWorldPosition();
         Vector3Int gridCell = tilemapGrid.WorldToCell(mouseWorldPosition);
         Vector3 snappedPosition = tilemapGrid.GetCellCenterWorld(gridCell);
         
         snappedPosition.y = placementObjectInstance.transform.position.y;
         placementObjectInstance.transform.position = snappedPosition;
-        
-        if (Input.GetKeyDown(KeyCode.Escape)) CancelItemPlacement();
 
         canPlace.Value = gridGraph.GetNearest(snappedPosition).node.Walkable;
-        if(itemToPlace.itemType == Item.ItemType.Plank) 
+        if (itemToPlace.itemType == Item.ItemType.Plank)
+        {
             RotatePlankDependingOnNeighbours(snappedPosition);
-
-        var rend = placementObjectInstance.GetComponent<Renderer>();
+            canPlace.Value = IsValidPlankPosition(snappedPosition);
+        }
+        var rend = placementObjectInstance.GetComponentInChildren<Renderer>();
         if (rend != null)
         {
-            placementObjectInstance.GetComponent<Renderer>().material.color = canPlace.Value ? Color.white : Color.red;   
+            Debug.Log("");
+            placementObjectInstance.GetComponentInChildren<Renderer>().material.color = canPlace.Value ? Color.white : Color.red;   
         }
         
         if (Input.GetMouseButtonDown(0)) PlaceItem(gridCell);
     }
 
+    /// <summary>
+    /// Check if plank is on land or if place is surrounded by water. Both cases are not valid.
+    ///
+    ///  Plank is considered valid for placement if it creates a bridge between two adjacent walkable nodes while the other two directions are not walkable
+    /// 
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    private bool IsValidPlankPosition(Vector3 pos)
+    {
+        // Positions
+        var positionEast = new Vector3(pos.x + 1, pos.y, pos.z);
+        var positionWest = new Vector3(pos.x - 1, pos.y, pos.z);
+        
+        var positionNorth = new Vector3(pos.x, pos.y, pos.z + 1);
+        var positionSouth = new Vector3(pos.x, pos.y, pos.z - 1);
+        
+        // Walk ability
+
+        var currentPos = gridGraph.GetNearest(pos).node.Walkable;
+        
+        var canWalkEast = gridGraph.GetNearest(positionEast).node.Walkable;
+        var canWalkWest = gridGraph.GetNearest(positionWest).node.Walkable;
+        
+        var canWalkNorth = gridGraph.GetNearest(positionNorth).node.Walkable;
+        var canWalkSouth = gridGraph.GetNearest(positionSouth).node.Walkable;
+
+        // no placement on land
+        if (currentPos)
+        {
+            return false;
+        }
+
+        bool result = (canWalkNorth && canWalkSouth && !canWalkWest) ||
+                      (canWalkNorth && canWalkSouth && !canWalkEast) ||
+                      (canWalkWest && canWalkEast && !canWalkNorth) ||
+                      (canWalkWest && canWalkEast && !canWalkSouth);
+        
+        return result;
+
+    }
+    
     private void RotatePlankDependingOnNeighbours(Vector3 snappedPosition)
     {
         // Positions
@@ -89,6 +137,9 @@ public class ItemUsage : MonoBehaviour
         // Walk ability
         var canWalkEast = gridGraph.GetNearest(positionEast).node.Walkable;
         var canWalkWest = gridGraph.GetNearest(positionWest).node.Walkable;
+        
+        if(placementObjectInstance == null)
+            Debug.Log("placementObjectInstance is null");
         
         if(canWalkEast && canWalkWest)
             placementObjectInstance.transform.rotation = Quaternion.Euler(0,0,0);
@@ -131,7 +182,7 @@ public class ItemUsage : MonoBehaviour
     private void PlaceItem(Vector3Int gridCell)
     {
         // No placement on areas, where we cannot place it
-        if (!canPlace.Value && itemToPlace.itemType != Item.ItemType.Plank) 
+        if (!canPlace.Value) 
             return;
         // Place the item in the game world
         Destroy(placementObjectInstance.GetComponent<Blinking>());
@@ -208,8 +259,6 @@ public class ItemUsage : MonoBehaviour
         AstarPath.active.UpdateGraphs(guo);
 
         AstarPath.active.FlushGraphUpdates();
-
-        Debug.Log("Graph updated at position: " + position);
     }
     
     public void CancelItemPlacement()
@@ -217,10 +266,6 @@ public class ItemUsage : MonoBehaviour
         if (placementObjectInstance) Destroy(placementObjectInstance);
         placementObjectInstance = null;
         isPlacing = false;
-        
-        // When the item placement is cancelled, we need to add 
-        
-        Debug.Log("Plank placement canceled.");
     }
  
     public Vector3 GetMouseWorldPosition()

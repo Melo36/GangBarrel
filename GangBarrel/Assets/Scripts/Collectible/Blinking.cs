@@ -8,7 +8,6 @@ public class Blinking : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Blinking" + this.gameObject);
         objectRenderer = GetComponentInChildren<Renderer>();
         nextBlinkTime = Time.time + blinkInterval;
     }

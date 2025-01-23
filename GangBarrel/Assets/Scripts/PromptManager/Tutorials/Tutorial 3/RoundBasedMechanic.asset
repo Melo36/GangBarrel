@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74bb6c5f9249dab46841502efdfe556a, type: 3}
   m_Name: RoundBasedMechanic
   m_EditorClassIdentifier: 
-  header: Round Game
+  header: Round
   description: "When you approach an enemy, the game enters Round Mode. Each participant
     has a set number of Action Points, shown at the top of the screen along with
     whose turn it is. Use Action Points to move (distance displayed in text) or shoot.

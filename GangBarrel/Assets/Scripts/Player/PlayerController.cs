@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour
     public int maxActions = 5;
     private int remainingActions; // Track actions left this turn
     public bool isInTurn;
-    public ReactiveProperty<PlayerState> currentState;
+    public ReactiveProperty<PlayerController.PlayerState> currentState;
     public ReactiveProperty<int> health = new ReactiveProperty<int>(3); // 3/3 lives, if reaching 0, game over
 
     [Header("Plank Placement")]
@@ -53,8 +53,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public AudioSource openUI;
     [SerializeField] public AudioSource explosion;
     [SerializeField] public AudioSource clickButton;
-
-
+    
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Bullet"))
@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour
         Shoot
     }
     
-    private bool shootMode = true;
+    private bool shootMode = false;
     private bool isPlacing = false;
     private bool distanceFrozen = false;
     
@@ -87,6 +87,12 @@ public class PlayerController : MonoBehaviour
         fuseManager = FindObjectOfType<FuseManager>();
         tilemapGrid = FindObjectOfType<Grid>();
 
+        currentModeTextMesh.text = "Currently: Move Mode";
+        currentModeTextMesh.color = Color.green;
+        buttonTextMesh.text = "Shoot";
+        
+        clickButton = GameObject.Find("Open UI").GetComponent<AudioSource>();
+        
         moveShootToggle.onClick.AddListener(ToggleMode);
         
         currentState.Subscribe(newState =>

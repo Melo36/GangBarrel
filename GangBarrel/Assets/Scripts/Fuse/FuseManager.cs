@@ -76,6 +76,8 @@ public class FuseManager : MonoBehaviour
         mainCamera = Camera.main;
         playerInventory = FindObjectOfType<InventoryManager>();
         
+        
+        
         if (fusePrefab == null)
         {
             Debug.LogError("Fuse Prefab is not assigned to FuseManager!");
@@ -110,7 +112,7 @@ public class FuseManager : MonoBehaviour
             {
                 if (playerInventory != null)
                 {
-                    playerInventory.AddItem(new Item { itemType = Item.ItemType.Fuse });
+                    playerInventory.AddItem(fuseItem);
                 }
                 currentState = CurrentState.Init;
             }

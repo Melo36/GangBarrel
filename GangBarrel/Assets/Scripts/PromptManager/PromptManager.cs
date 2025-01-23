@@ -50,6 +50,9 @@ public class PromptManager : MonoBehaviour
     private void Awake()
     {
         itemUsage = FindObjectOfType<ItemUsage>();
+        pickupBarrel = GameObject.FindGameObjectWithTag("PickUp").GetComponent<AudioSource>();
+        placeBarrel = GameObject.FindGameObjectWithTag("Place").GetComponent<AudioSource>();
+        openUI = GameObject.FindGameObjectWithTag("OpenUI").GetComponent<AudioSource>();
     }
 
     private void Start()

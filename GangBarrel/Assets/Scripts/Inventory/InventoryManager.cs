@@ -72,6 +72,10 @@ namespace Inventory
 
         public void AddItem(Item item)
         {
+            // Keys are not added to the inventory
+            if (item.itemType == Item.ItemType.Key)
+                return;
+            
             // Add the item to the inventory list
             items.Add(item);
             
@@ -85,6 +89,13 @@ namespace Inventory
 
         internal GameObject CreateInventoryUI(Item item)
         {
+            if(item == null)
+                Debug.LogError("Item is null");
+            if(item.uiItemPrefab == null)
+                Debug.LogError("item.uiItemPrefab is null");
+            if(inventoryContentParent == null)
+                Debug.LogError("inventoryContentParent is null");
+            
             // Instantiate the prefab and set it as a child of the inventory content parent
             GameObject newItem = Instantiate(item.uiItemPrefab, inventoryContentParent.transform);
 
