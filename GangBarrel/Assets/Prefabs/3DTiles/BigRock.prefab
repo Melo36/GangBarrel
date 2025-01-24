@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4987480524669494603}
   - component: {fileID: -816087178010582925}
   - component: {fileID: -4165554416175231055}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BigRock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -84,7 +84,7 @@ GameObject:
   - component: {fileID: 1869151078469343980}
   - component: {fileID: 8621693054116433686}
   - component: {fileID: 3460186438969655981}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: StonePart2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 3998969486781258587}
   - component: {fileID: 6435769210116989231}
   - component: {fileID: 6293438273720345270}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: StonePart1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -294,7 +294,7 @@ GameObject:
   - component: {fileID: 1658750539307944070}
   - component: {fileID: 3050541792679966293}
   - component: {fileID: 3030992555310196311}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: StonePart3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -450,6 +450,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 5724d9ecf797d6b4798dd20239c30835, type: 3}
       propertyPath: m_Name
       value: Big Boulder
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5724d9ecf797d6b4798dd20239c30835, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
