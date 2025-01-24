@@ -119,12 +119,16 @@ public class ItemUsage : MonoBehaviour
             return false;
         }
 
-        bool result = (canWalkNorth && canWalkSouth && !canWalkWest) ||
+        /*
+        bool onePlankOnly = (canWalkNorth && canWalkSouth && !canWalkWest) ||
                       (canWalkNorth && canWalkSouth && !canWalkEast) ||
                       (canWalkWest && canWalkEast && !canWalkNorth) ||
                       (canWalkWest && canWalkEast && !canWalkSouth);
+        */
         
-        return result;
+        bool multiplePlanks = canWalkNorth || canWalkEast || canWalkWest || canWalkSouth;
+        
+        return multiplePlanks;
 
     }
     
@@ -137,11 +141,13 @@ public class ItemUsage : MonoBehaviour
         // Walk ability
         var canWalkEast = gridGraph.GetNearest(positionEast).node.Walkable;
         var canWalkWest = gridGraph.GetNearest(positionWest).node.Walkable;
+     
+        var currentPos = gridGraph.GetNearest(snappedPosition).node.Walkable;
         
         if(placementObjectInstance == null)
             Debug.Log("placementObjectInstance is null");
         
-        if(canWalkEast && canWalkWest)
+        if((canWalkEast && canWalkWest) || canWalkEast || canWalkWest)
             placementObjectInstance.transform.rotation = Quaternion.Euler(0,0,0);
         else 
             placementObjectInstance.transform.rotation = Quaternion.Euler(0,90,0);
