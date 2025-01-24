@@ -57,10 +57,9 @@ public class PlayerController : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Bullet"))
+        if (other.gameObject.CompareTag("Bullet") || other.gameObject.CompareTag("ExplosionTrigger"))
         {
             health.Value--;
-            Debug.Log("!!!!!!!!!!Player was hit by a bullet.");
         }
     }
 
