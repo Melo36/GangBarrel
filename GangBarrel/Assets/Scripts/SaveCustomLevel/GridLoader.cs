@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Chest;
 using TMPro;
 using UnityEditor;
 using UnityEngine.Rendering;
@@ -16,7 +18,11 @@ public class GridLoader : MonoBehaviour
     private string prefabPath = "Assets/_Prefabs/";
     
     private Button button;
-    public GameObject barrel;
+
+    public List<Item> items;
+        
+    // objects displayed in the ui
+    private int currentChest = 0;
         
     private void Start()
     {
@@ -43,9 +49,14 @@ public class GridLoader : MonoBehaviour
             GridInformation gridInformation = JsonUtility.FromJson<GridInformation>(json);
 
             // Load grid objects
-            foreach (var gridObjectInformation in gridInformation.gridObjects)
+            for (int i=0; i < gridInformation.gridObjects.Count;i++)
             {
-                createObject(gridObjectInformation.objectName, gridObjectInformation.position);
+                GameObject newObject = createObject(gridInformation.gridObjects[i].objectName, gridInformation.gridObjects[i].position);
+                if (newObject != null && newObject.name == "LChest")
+                {
+                    string chestContent = gridInformation.gridObjects[i + 1].chestContent;
+                    setChestContent(newObject, chestContent);
+                }
             }
 
             string tilePath = "Assets/GROUND TILESETS RULE TILES/Ground Tiles V3/Rule Tiles/";
@@ -73,6 +84,28 @@ public class GridLoader : MonoBehaviour
         }
     }
 
+    private void setChestContent(GameObject chest, string chestContentString)
+    {
+        ChestContent chestContent = chest.GetComponentInChildren<ChestContent>();
+        // Split the string into a string array
+        string[] stringArray = chestContentString.Split(',');
+
+        // Convert string array to int array
+        int[] intArray = new int[stringArray.Length];
+        for (int i = 0; i < stringArray.Length; i++)
+        {
+            intArray[i] = int.Parse(stringArray[i]); // Parse each string to an int
+        }
+
+        for (int i = 0; i < intArray.Length; i++)
+        {
+            for (int j = 0; j < intArray[i]; j++)
+            {
+                chestContent.AddItem(items[i]);
+            }
+        }
+    }
+
     private GameObject createObject(string objectName, Vector3 objectPosition)
     {
         int cutParentheses = objectName.IndexOf("(");
@@ -90,7 +123,8 @@ public class GridLoader : MonoBehaviour
 
         if (prefab)
         {
-            return Instantiate(prefab, objectPosition, Quaternion.identity);
+             return Instantiate(prefab, objectPosition, Quaternion.identity);
+            
         }
 
         return null;

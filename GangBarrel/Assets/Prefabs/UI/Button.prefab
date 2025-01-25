@@ -268,4 +268,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a547aab04cedf48c8ae1addf81ce2b57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  barrel: {fileID: 2169355177021171195, guid: 063eebed3ade34a51aa4c10dfafc5f73, type: 3}
+  items:
+  - {fileID: 11400000, guid: 6d146cddd2c693d45b41300d86e074a0, type: 2}
+  - {fileID: 11400000, guid: 94edaebe54366b04cb0f149aa0266f26, type: 2}
+  - {fileID: 11400000, guid: 8d39712ce41fab644b26d3a89496bde6, type: 2}
+  - {fileID: 11400000, guid: abbdb9fb5befbe3499a9baf5c1ab942e, type: 2}
+  itemsUI:
+  - {fileID: 7178866115200830392, guid: f376c79284fc3f849a97ac2af121b8da, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}

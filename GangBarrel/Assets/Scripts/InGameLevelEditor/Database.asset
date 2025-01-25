@@ -34,19 +34,19 @@ MonoBehaviour:
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 2169355177021171195, guid: 063eebed3ade34a51aa4c10dfafc5f73, type: 3}
     <Tile>k__BackingField: {fileID: 0}
-  - <Name>k__BackingField: Plank
+  - <Name>k__BackingField: Chest
     <ID>k__BackingField: 4
-    <Size>k__BackingField: {x: 2, y: 1}
-    <Prefab>k__BackingField: {fileID: 4587571858970226054, guid: 3e585db1dadd2458090c938b8c3bbae2, type: 3}
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 3615013265685540510, guid: 164c4144995804e93827805db6c421c2, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
+  - <Name>k__BackingField: Key
+    <ID>k__BackingField: 5
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 2561709494650642574, guid: ca06f6e6b97124849a03e3454fed59a7, type: 3}
     <Tile>k__BackingField: {fileID: 0}
   - <Name>k__BackingField: Big Rock
-    <ID>k__BackingField: 5
-    <Size>k__BackingField: {x: 2, y: 2}
-    <Prefab>k__BackingField: {fileID: 2844360828669535257, guid: bffb693a3a14b432c81c2c7ec4a9c45d, type: 3}
-    <Tile>k__BackingField: {fileID: 0}
-  - <Name>k__BackingField: Small Rock
     <ID>k__BackingField: 6
-    <Size>k__BackingField: {x: 1, y: 1}
+    <Size>k__BackingField: {x: 2, y: 2}
     <Prefab>k__BackingField: {fileID: 2844360828669535257, guid: bffb693a3a14b432c81c2c7ec4a9c45d, type: 3}
     <Tile>k__BackingField: {fileID: 0}
   - <Name>k__BackingField: Player
@@ -57,10 +57,5 @@ MonoBehaviour:
   - <Name>k__BackingField: Enemy
     <ID>k__BackingField: 8
     <Size>k__BackingField: {x: 1, y: 1}
-    <Prefab>k__BackingField: {fileID: 3779649467170888096, guid: 22dba5c481a3f448e949f2f24480340f, type: 3}
-    <Tile>k__BackingField: {fileID: 0}
-  - <Name>k__BackingField: Cave
-    <ID>k__BackingField: 9
-    <Size>k__BackingField: {x: 3, y: 3}
-    <Prefab>k__BackingField: {fileID: 120301856459387864, guid: 8ed8c0f7c3249440984acf8992c893a9, type: 3}
+    <Prefab>k__BackingField: {fileID: 2822850057962606332, guid: fe50d4d724a064d24b0e20e748f9d082, type: 3}
     <Tile>k__BackingField: {fileID: 0}

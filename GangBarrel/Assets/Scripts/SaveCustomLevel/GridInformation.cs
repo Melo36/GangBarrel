@@ -14,6 +14,7 @@ public class GridObjectInformation
 {
     public string objectName;
     public Vector3 position;
+    public string chestContent;
 }
 
 [System.Serializable]

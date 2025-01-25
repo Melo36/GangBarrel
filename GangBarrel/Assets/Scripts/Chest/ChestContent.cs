@@ -54,6 +54,11 @@ namespace Chest
                 Debug.LogWarning("Item not found in inventory. Cannot remove.");
             }
         }
-        
+
+        public void AddItem(Item item)
+        {
+            items.Add(item);
+            itemsUI.Add(item.uiItemPrefab);
+        }
     }
 }

@@ -3,12 +3,15 @@ using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
+using UnityEditor;
 
 public class GridSaver : MonoBehaviour
 {
     public GameObject gridParent; // Parent object that contains all grid objects
     public Tilemap tilemap; // Reference to the Tilemap component
     public TextMeshProUGUI levelName;
+    private string chestContentPath = "Assets/CustomLevels/chest_content.txt";
+    private int currentChest = 0;
 
     public void SaveGridAndTilemapData()
     {
@@ -26,6 +29,20 @@ public class GridSaver : MonoBehaviour
                 position = child.position
             };
             gridInformation.gridObjects.Add(gridObjectInformation);
+            if (gridObjectInformation.objectName == "LChest(Clone)")
+            {
+                string[] lines = File.ReadAllLines(chestContentPath);
+                string currentChestContent = lines[currentChest];
+                
+                GridObjectInformation chestInformation = new GridObjectInformation
+                {
+                    objectName = "Chest Content " + currentChest,
+                    chestContent = currentChestContent
+                };
+                
+                gridInformation.gridObjects.Add(chestInformation);
+                currentChest++;
+            }
         }
 
         // Save tilemap tiles
