@@ -52,7 +52,7 @@ public class GridLoader : MonoBehaviour
             for (int i=0; i < gridInformation.gridObjects.Count;i++)
             {
                 GameObject newObject = createObject(gridInformation.gridObjects[i].objectName, gridInformation.gridObjects[i].position);
-                if (newObject != null && newObject.name == "LChest")
+                if (newObject != null && newObject.name == "LChest(Clone)")
                 {
                     string chestContent = gridInformation.gridObjects[i + 1].chestContent;
                     setChestContent(newObject, chestContent);
@@ -124,7 +124,6 @@ public class GridLoader : MonoBehaviour
         if (prefab)
         {
              return Instantiate(prefab, objectPosition, Quaternion.identity);
-            
         }
 
         return null;

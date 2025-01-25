@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,7 +28,7 @@ public class ChestContentSetter : MonoBehaviour
 
     private void setObjectsInsideChest()
     {
-        InputField[] inputFields = chestContentUI.GetComponentsInChildren<InputField>();
+        TMP_InputField[] inputFields = chestContentUI.GetComponentsInChildren<TMP_InputField>(true);
         for (int i=0;i<inputFields.Length;i++)
         {
             objectsInChest[i] = int.Parse(inputFields[i].text);
@@ -49,7 +50,7 @@ public class ChestContentSetter : MonoBehaviour
         string arrayContent = string.Join(",", objectsInChest) + "\n";
 
         // Write the string to a file
-        File.WriteAllText(filePath, arrayContent);
+        File.AppendAllText(filePath, arrayContent);
 
         Debug.Log($"Array written to file at: {filePath}");
     }

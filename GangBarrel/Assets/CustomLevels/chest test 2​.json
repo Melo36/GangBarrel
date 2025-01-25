@@ -1,0 +1,61 @@
+{
+    "gridObjects": [
+        {
+            "objectName": "GridVisualization",
+            "position": {
+                "x": 0.0,
+                "y": 0.014999999664723874,
+                "z": 0.0
+            },
+            "chestContent": ""
+        },
+        {
+            "objectName": "Grid",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "chestContent": ""
+        },
+        {
+            "objectName": "LChest(Clone)",
+            "position": {
+                "x": -5.0,
+                "y": 0.0,
+                "z": -2.0
+            },
+            "chestContent": ""
+        },
+        {
+            "objectName": "Chest Content 0",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "chestContent": "1,1,0,0"
+        },
+        {
+            "objectName": "LChest(Clone)",
+            "position": {
+                "x": -7.0,
+                "y": 0.0,
+                "z": -2.0
+            },
+            "chestContent": ""
+        },
+        {
+            "objectName": "Chest Content 1",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "chestContent": "2,0,0,2"
+        }
+    ],
+    "tilemapData": {
+        "tiles": []
+    }
+}
