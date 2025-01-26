@@ -32,7 +32,7 @@ MonoBehaviour:
   - <Name>k__BackingField: Barrel
     <ID>k__BackingField: 3
     <Size>k__BackingField: {x: 1, y: 1}
-    <Prefab>k__BackingField: {fileID: 2169355177021171195, guid: 063eebed3ade34a51aa4c10dfafc5f73, type: 3}
+    <Prefab>k__BackingField: {fileID: 8338296520201049156, guid: 1133b7a388d4e4a5cac632d3844fdb1c, type: 3}
     <Tile>k__BackingField: {fileID: 0}
   - <Name>k__BackingField: Chest
     <ID>k__BackingField: 4

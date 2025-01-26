@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using GameManager;
 
 public class GridLoader : MonoBehaviour
 {
@@ -23,9 +24,11 @@ public class GridLoader : MonoBehaviour
     public List<Item> items;
     public GameObject necessaryScriptsPrefab;
     private GameObject instatiatedScripts;
+
+    private GameManager.GameManager gameManager;
         
     // objects displayed in the ui
-    private int currentChest = 0;
+    private GameObject currentChest;
         
     private void Start()
     {
@@ -58,6 +61,10 @@ public class GridLoader : MonoBehaviour
                 {
                     string chestContent = gridInformation.gridObjects[i + 1].chestContent;
                     setChestContent(newObject, chestContent);
+                    currentChest = newObject;
+                } else if (newObject != null && newObject.name == "LKey(Clone)")
+                {
+                    gameManager.keyChestPairs.Add(newObject, currentChest);
                 }
             }
 
@@ -150,27 +157,16 @@ public class GridLoader : MonoBehaviour
         
         // Get the current active scene
         Scene oldScene = SceneManager.GetActiveScene();
-
-        // Step 2: Create a Grid GameObject in the new Scene
-        grid = new GameObject("Grid");
-        grid.AddComponent<Grid>();
-        grid.GetComponent<Grid>().cellSwizzle = GridLayout.CellSwizzle.XZY;
-
-        // Step 3: Move the Grid GameObject to the new Scene
-        SceneManager.MoveGameObjectToScene(grid, newScene);
-
-        // Step 4: Create a Tilemap GameObject as a child of the Grid
-        GameObject tilemapObject = new GameObject("Tilemap");
-        tilemapObject.transform.SetParent(grid.transform);
-        tilemap = tilemapObject.AddComponent<UnityEngine.Tilemaps.Tilemap>();
-        tilemap.orientation = Tilemap.Orientation.XZ;
-        tilemapObject.AddComponent<UnityEngine.Tilemaps.TilemapRenderer>();
         
         // Step 5: Instantiate all necessary scripts
         instatiatedScripts = Instantiate(necessaryScriptsPrefab);
         SceneManager.MoveGameObjectToScene(instatiatedScripts, newScene);
         ItemUsage itemUsage = instatiatedScripts.GetComponentInChildren<ItemUsage>();
-        itemUsage.tilemapGrid = tilemapObject.GetComponent<Tilemap>();
+        tilemap = instatiatedScripts.GetComponentInChildren<Tilemap>();
+        itemUsage.tilemapGrid = tilemap;
+
+        gameManager = instatiatedScripts.GetComponentInChildren<GameManager.GameManager>();
+        
 
         // Step 6: Switch to the new Scene
         SceneManager.SetActiveScene(newScene);

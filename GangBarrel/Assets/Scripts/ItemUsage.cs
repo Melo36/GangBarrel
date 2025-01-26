@@ -37,7 +37,10 @@ public class ItemUsage : MonoBehaviour
     private void Awake()
     {
         gridGraph = AstarPath.active.data.gridGraph;
-        mainCamera = Camera.main;
+        if (!mainCamera)
+        { 
+            mainCamera = Camera.main;
+        }
         /*
         canPlace.Subscribe(b =>
         {
