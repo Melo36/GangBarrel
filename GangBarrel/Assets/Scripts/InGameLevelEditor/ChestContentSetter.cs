@@ -31,6 +31,10 @@ public class ChestContentSetter : MonoBehaviour
         TMP_InputField[] inputFields = chestContentUI.GetComponentsInChildren<TMP_InputField>(true);
         for (int i=0;i<inputFields.Length;i++)
         {
+            if (inputFields[i].text.Length == 0)
+            {
+                inputFields[i].text = "0";
+            }
             objectsInChest[i] = int.Parse(inputFields[i].text);
         }
     }

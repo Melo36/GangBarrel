@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using Chest;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,8 @@ public class GridLoader : MonoBehaviour
     private Button button;
 
     public List<Item> items;
+    public GameObject necessaryScriptsPrefab;
+    private GameObject instatiatedScripts;
         
     // objects displayed in the ui
     private int currentChest = 0;
@@ -33,7 +36,6 @@ public class GridLoader : MonoBehaviour
         button.onClick.AddListener(makeCustomLevel);
         
     }
-
 
     private void makeCustomLevel()
     {
@@ -118,14 +120,26 @@ public class GridLoader : MonoBehaviour
             return null;
         }
         Debug.Log(prefabPath + objectName);
+
         
-        GameObject prefab = Resources.Load<GameObject>(objectName);
-
-        if (prefab)
+        if (objectName == "LPlayer")
         {
-             return Instantiate(prefab, objectPosition, Quaternion.identity);
+            Transform playerTransform = instatiatedScripts.transform.Find("Character_pirate");
+            if (playerTransform)
+            {
+                Debug.Log("Found player");
+            }
+            playerTransform.position = objectPosition;
+            playerTransform.rotation = Quaternion.identity;
         }
-
+        else
+        {
+            GameObject prefab = Resources.Load<GameObject>(objectName);
+            if (prefab)
+            {
+                return Instantiate(prefab, objectPosition, Quaternion.identity);
+            }
+        }
         return null;
     }
 
@@ -152,27 +166,16 @@ public class GridLoader : MonoBehaviour
         tilemap.orientation = Tilemap.Orientation.XZ;
         tilemapObject.AddComponent<UnityEngine.Tilemaps.TilemapRenderer>();
         
-        // Step 5: Add a Camera to the new Scene
-        GameObject cameraObject = new GameObject("Main Camera");
-        Camera cameraComponent = cameraObject.AddComponent<Camera>();
-        cameraComponent.clearFlags = CameraClearFlags.Skybox;
-        cameraObject.tag = "MainCamera"; // Tag it as Main Camera
-        cameraObject.transform.position = new Vector3(0, 10, -10); // Adjust position
-        cameraObject.transform.rotation = Quaternion.Euler(45, 0, 0); // Adjust rotation
-        SceneManager.MoveGameObjectToScene(cameraObject, newScene);
+        // Step 5: Instantiate all necessary scripts
+        instatiatedScripts = Instantiate(necessaryScriptsPrefab);
+        SceneManager.MoveGameObjectToScene(instatiatedScripts, newScene);
+        ItemUsage itemUsage = instatiatedScripts.GetComponentInChildren<ItemUsage>();
+        itemUsage.tilemapGrid = tilemapObject.GetComponent<Tilemap>();
 
-        // Step 6: Add a Directional Light to the new Scene
-        GameObject lightObject = new GameObject("Directional Light");
-        Light lightComponent = lightObject.AddComponent<Light>();
-        lightComponent.type = LightType.Directional;
-        lightComponent.intensity = 1f; // Set light intensity
-        lightObject.transform.rotation = Quaternion.Euler(50, -30, 0); // Adjust rotation
-        SceneManager.MoveGameObjectToScene(lightObject, newScene);
-
-        // Step 5: Switch to the new Scene
+        // Step 6: Switch to the new Scene
         SceneManager.SetActiveScene(newScene);
         
-        // Step 6: Unload the old Scene (asynchronously)
+        // Step 7: Unload the old Scene (asynchronously)
         SceneManager.UnloadSceneAsync(oldScene);
     }
 }

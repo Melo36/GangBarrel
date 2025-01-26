@@ -21,6 +21,10 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
+        // Place camera behind player automatically
+        transform.position = player.position + new Vector3(0.33f, 4.9f, 0.889f);
+        transform.rotation = Quaternion.Euler(65, -45, 0);
+        
         // Calculate the initial offset between the camera and the player
         if (player != null)
         {
