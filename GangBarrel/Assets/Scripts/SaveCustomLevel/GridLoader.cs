@@ -26,6 +26,8 @@ public class GridLoader : MonoBehaviour
     private GameObject instatiatedScripts;
 
     private GameManager.GameManager gameManager;
+
+    private Transform playerTransform;
         
     // objects displayed in the ui
     private GameObject currentChest;
@@ -64,7 +66,9 @@ public class GridLoader : MonoBehaviour
                     currentChest = newObject;
                 } else if (newObject != null && newObject.name == "LKey(Clone)")
                 {
-                    gameManager.keyChestPairs.Add(newObject, currentChest);
+                    GameObject keyObject = newObject.transform.Find("KeyPrefab").gameObject;
+                    GameObject chestObject = currentChest.transform.Find("chest_close").gameObject;
+                    gameManager.keyChestPairs.Add(keyObject, chestObject);
                 }
             }
 
@@ -72,11 +76,28 @@ public class GridLoader : MonoBehaviour
             // Load tilemap tiles
             foreach (var tileInformation in gridInformation.tilemapData.tiles)
             {
-                Debug.Log(tilePath + tileInformation.tileName);
-                #if UNITY_EDITOR // TODO: make independent from Editor
                 TileBase tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath + tileInformation.tileName + ".asset"); // Assumes tiles are stored as assets in Resources
                 if (tile != null)
                 {
+                    // Remove water tile in that position
+                    // Convert grid position to world position using the grid's CellToWorld function
+                    Vector3 tileWorldPosition = tilemap.layoutGrid.CellToWorld(tileInformation.position);
+
+                    // Adjust for the XZY swizzle by swapping the Y and Z axes
+                    Vector3 adjustedPosition = new Vector3(tileWorldPosition.x, tileWorldPosition.z, tileWorldPosition.y);
+
+                    // Find the water object at this position
+                    Collider[] colliders = Physics.OverlapSphere(adjustedPosition, 0.5f); // Use a small radius to find nearby objects
+                    foreach (var collider in colliders)
+                    {
+                        if (collider.gameObject.CompareTag("Water")) // Ensure it matches the "Water" tag
+                        {
+                            Destroy(collider.gameObject); // Destroy the water object
+                            Debug.Log($"Destroyed water object at {tileInformation.position}");
+                            break;
+                        }
+                    }
+                    
                     tilemap.SetTile(tileInformation.position, tile);
                     Debug.Log($"Loaded tile {tileInformation.tileName} at {tileInformation.position}");
                 }
@@ -84,7 +105,6 @@ public class GridLoader : MonoBehaviour
                 {
                     Debug.LogError($"Tile {tileInformation.tileName} not found.");
                 }
-                #endif
             }
         }
         else
@@ -131,7 +151,7 @@ public class GridLoader : MonoBehaviour
         
         if (objectName == "LPlayer")
         {
-            Transform playerTransform = instatiatedScripts.transform.Find("Character_pirate");
+            playerTransform = instatiatedScripts.transform.Find("Character_pirate");
             if (playerTransform)
             {
                 Debug.Log("Found player");

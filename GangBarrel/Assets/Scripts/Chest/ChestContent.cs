@@ -34,14 +34,14 @@ namespace Chest
         {
             // Find the index of the item in the inventory
             int index = items.IndexOf(item);
-
+            
             if (index >= 0)
             {
                 // Remove the item from the inventory list
                 items.RemoveAt(index);
 
                 // Destroy the corresponding UI object
-                Destroy(itemsUI[index]);
+                DestroyImmediate(itemsUI[index], true);
 
                 // Remove the UI object from the itemsUI list
                 itemsUI.RemoveAt(index);
@@ -58,7 +58,6 @@ namespace Chest
         public void AddItem(Item item)
         {
             items.Add(item);
-            itemsUI.Add(item.uiItemPrefab);
         }
     }
 }
