@@ -273,6 +273,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 94edaebe54366b04cb0f149aa0266f26, type: 2}
   - {fileID: 11400000, guid: 8d39712ce41fab644b26d3a89496bde6, type: 2}
   - {fileID: 11400000, guid: abbdb9fb5befbe3499a9baf5c1ab942e, type: 2}
-  necessaryScriptsPrefab: {fileID: 4124712380152410415, guid: a5e4021b8f72d4f51a326f9ff72a6175, type: 3}
-  waterTile: {fileID: 11400000, guid: d391564cea856cb4cb8901bb7046e2bb, type: 2}
-  waterPrefab: {fileID: 7502242491501236174, guid: c22af2e3bcd2bee44bcdca3cd16f2187, type: 3}
+  necessaryScriptsPrefab: {fileID: 363522640114743669, guid: a5e4021b8f72d4f51a326f9ff72a6175, type: 3}
+  waterParent: {fileID: 0}

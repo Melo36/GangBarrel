@@ -12,7 +12,14 @@ public class WinCondition : MonoBehaviour
         {
             Debug.Log("player wins!");
             Destroy(gameObject);
-            SceneChanger.Instance.LoadCongratsScreen();
+            if (SceneChanger.Instance)
+            {
+                SceneChanger.Instance.LoadCongratsScreen();
+            }
+            else
+            {
+                SceneManager.LoadScene("LevelBrowser");
+            }
         }
     }
 }

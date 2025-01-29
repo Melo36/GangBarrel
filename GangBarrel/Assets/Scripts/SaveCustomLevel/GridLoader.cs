@@ -26,11 +26,13 @@ public class GridLoader : MonoBehaviour
     private GameObject instatiatedScripts;
 
     private GameManager.GameManager gameManager;
+    private GameObject waterParent;
 
     private Transform playerTransform;
         
     // objects displayed in the ui
     private GameObject currentChest;
+    Dictionary<Vector3Int, GameObject> waterObjectMap = new Dictionary<Vector3Int, GameObject>();
         
     private void Start()
     {
@@ -39,13 +41,20 @@ public class GridLoader : MonoBehaviour
         filePath = filePath + levelName + ".json";
         button = GetComponent<Button>();
         button.onClick.AddListener(makeCustomLevel);
-        
     }
 
     private void makeCustomLevel()
     {
         CreateNewScene();
+        waterParent = instatiatedScripts.transform.Find("WaterObjects").gameObject;
+        foreach (Transform water in waterParent.transform)
+        {
+            Vector3Int cellPosition = tilemap.layoutGrid.WorldToCell(water.transform.position);
+            waterObjectMap[cellPosition] = water.gameObject;
+        }
         LoadGridAndTilemapData();
+
+        ScanManager.Instance.ScheduleScan(0.1f, "");
     }
     
     public void LoadGridAndTilemapData()
@@ -79,24 +88,7 @@ public class GridLoader : MonoBehaviour
                 TileBase tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath + tileInformation.tileName + ".asset"); // Assumes tiles are stored as assets in Resources
                 if (tile != null)
                 {
-                    // Remove water tile in that position
-                    // Convert grid position to world position using the grid's CellToWorld function
-                    Vector3 tileWorldPosition = tilemap.layoutGrid.CellToWorld(tileInformation.position);
-
-                    // Adjust for the XZY swizzle by swapping the Y and Z axes
-                    Vector3 adjustedPosition = new Vector3(tileWorldPosition.x, tileWorldPosition.z, tileWorldPosition.y);
-
-                    // Find the water object at this position
-                    Collider[] colliders = Physics.OverlapSphere(adjustedPosition, 0.5f); // Use a small radius to find nearby objects
-                    foreach (var collider in colliders)
-                    {
-                        if (collider.gameObject.CompareTag("Water")) // Ensure it matches the "Water" tag
-                        {
-                            Destroy(collider.gameObject); // Destroy the water object
-                            Debug.Log($"Destroyed water object at {tileInformation.position}");
-                            break;
-                        }
-                    }
+                    Destroy(waterObjectMap[tileInformation.position]);
                     
                     tilemap.SetTile(tileInformation.position, tile);
                     Debug.Log($"Loaded tile {tileInformation.tileName} at {tileInformation.position}");
@@ -111,6 +103,8 @@ public class GridLoader : MonoBehaviour
         {
             Debug.LogError("Grid data file not found.");
         }
+        
+        Debug.Log("Finished tilemap");
     }
 
     private void setChestContent(GameObject chest, string chestContentString)

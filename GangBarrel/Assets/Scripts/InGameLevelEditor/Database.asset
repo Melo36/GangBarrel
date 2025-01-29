@@ -59,3 +59,8 @@ MonoBehaviour:
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 2822850057962606332, guid: fe50d4d724a064d24b0e20e748f9d082, type: 3}
     <Tile>k__BackingField: {fileID: 0}
+  - <Name>k__BackingField: PlayerGoal
+    <ID>k__BackingField: 9
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 8305730003947521648, guid: a557e66cffb88484aa72d302f14be682, type: 3}
+    <Tile>k__BackingField: {fileID: 0}
