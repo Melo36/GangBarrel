@@ -80,7 +80,10 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         playerUI = GetComponent<PlayerUI>();
-        mainCamera = Camera.main;
+        if (!mainCamera)
+        {
+            mainCamera = Camera.main;
+        }
         promptManager = FindObjectOfType<PromptManager>();
         currentState = new ReactiveProperty<PlayerState>(PlayerState.Idle);
         fuseManager = FindObjectOfType<FuseManager>();
@@ -212,9 +215,6 @@ public class PlayerController : MonoBehaviour
         
         if (roundManager.isCombatActive.Value && !isInTurn)
             return;
-
-        Debug.Log("!!HandleMouseInput()");
-
         
         Vector3 mousePosition = GetMouseWorldPosition();
         float distance = CalculatePathDistance(transform.position, mousePosition);

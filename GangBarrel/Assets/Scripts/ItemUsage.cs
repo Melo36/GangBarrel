@@ -37,7 +37,10 @@ public class ItemUsage : MonoBehaviour
     private void Awake()
     {
         gridGraph = AstarPath.active.data.gridGraph;
-        mainCamera = Camera.main;
+        if (!mainCamera)
+        { 
+            mainCamera = Camera.main;
+        }
         /*
         canPlace.Subscribe(b =>
         {
@@ -79,7 +82,6 @@ public class ItemUsage : MonoBehaviour
         var rend = placementObjectInstance.GetComponentInChildren<Renderer>();
         if (rend != null)
         {
-            Debug.Log("");
             placementObjectInstance.GetComponentInChildren<Renderer>().material.color = canPlace.Value ? Color.white : Color.red;   
         }
         

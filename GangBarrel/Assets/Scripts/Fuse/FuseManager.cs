@@ -42,7 +42,7 @@ public class FuseManager : MonoBehaviour
     private List<Fuse> activeFuses = new List<Fuse>();
     private bool isPreviewValid;
     private BarrelExplosionController startBarrel;
-    private Camera mainCamera;
+    public Camera mainCamera;
     private Vector3 lastMousePosition;
 
     public GameObject[] explosiveBarrels;
@@ -73,7 +73,10 @@ public class FuseManager : MonoBehaviour
     private void Awake()
     {
         explosiveBarrels = GameObject.FindGameObjectsWithTag("Barrel");
-        mainCamera = Camera.main;
+        if (!mainCamera)
+        {
+            mainCamera = Camera.main;
+        }
         playerInventory = FindObjectOfType<InventoryManager>();
         
         

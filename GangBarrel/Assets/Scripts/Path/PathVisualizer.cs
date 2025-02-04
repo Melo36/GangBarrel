@@ -16,7 +16,10 @@ public class PathVisualizer : MonoBehaviour {
 
     private void Awake()
     {
-        mainCamera = Camera.main;
+        if (!mainCamera)
+        { 
+            mainCamera = Camera.main;
+        }
     }
 
     void Start() {

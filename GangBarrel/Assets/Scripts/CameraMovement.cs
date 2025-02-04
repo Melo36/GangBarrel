@@ -22,13 +22,13 @@ public class CameraMovement : MonoBehaviour
         transform.Translate(movement, Space.World);
 
         // Handle vertical movement (up and down)
-        if (Input.GetKey(KeyCode.Q)) // Move up
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f ) // Move up
         {
-            transform.position += new Vector3(0, cameraSpeed * Time.deltaTime, 0);
+            transform.position += new Vector3(0, cameraSpeed * Time.deltaTime * 10, 0);
         }
-        if (Input.GetKey(KeyCode.E)) // Move down
+        if (Input.GetAxis("Mouse ScrollWheel") < 0f) // Move down
         {
-            transform.position -= new Vector3(0, cameraSpeed * Time.deltaTime, 0);
+            transform.position -= new Vector3(0, cameraSpeed * Time.deltaTime * 10, 0);
         }
 
         // Clamp the camera's vertical position

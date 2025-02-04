@@ -3,60 +3,43 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    [SerializeField] private Transform player; // The object the camera will initially follow
-    [SerializeField] private float delay = 2f; // Time in seconds before the camera starts following
-    [SerializeField] private float followSpeed = 2f; // Speed at which the camera follows the target
-    [SerializeField] private float targetReachedTolerance = 0.1f;
+    public Transform target; // The player or object the camera follows
+    public float distance = 5.0f; // Distance from the target
+    public float rotationSpeed = 3.0f; // Speed of rotation
+    public Vector2 pitchLimits = new Vector2(-30, 60); // Limits for vertical rotation
     
-    public Vector3 initialOffset; // Initial distance from the player or enemy
-    private bool canFollow = false; // Flag to enable following
+    private float yaw = 0.0f;
+    private float pitch = 20.0f;
+    
     public Transform currentTarget; // Current target for the camera to follow
-
-    public bool targetReached;
-
-    private void Awake()
-    {
-        player = FindObjectOfType<PlayerController>().gameObject.transform;
-    }
 
     void Start()
     {
-        // Calculate the initial offset between the camera and the player
-        if (player != null)
+        if (target != null)
         {
-            initialOffset = transform.position - player.position;
-            currentTarget = player; // Start following the player
+            Vector3 angles = transform.eulerAngles;
+            yaw = angles.y;
+            pitch = angles.x;
         }
-        else
-        {
-            Debug.LogError("Player transform is not assigned.");
-        }
-
-        // Start following after the specified delay
-        Invoke(nameof(StartFollowing), delay);
     }
 
     void LateUpdate()
     {
-        if (!canFollow || currentTarget == null) return;
+        if (target == null) return;
 
-        Vector3 targetPosition = currentTarget.position + initialOffset;
-        Vector3 currentPosition = transform.position;
-        
-        // Calculate distance to target
-        float distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
-        
-        // Update reached target status
-        targetReached = distanceToTarget <= targetReachedTolerance;
+        // Rotate camera with right mouse button
+        if (Input.GetMouseButton(1))
+        {
+            yaw += Input.GetAxis("Mouse X") * rotationSpeed;
+            pitch -= Input.GetAxis("Mouse Y") * rotationSpeed;
+            pitch = Mathf.Clamp(pitch, pitchLimits.x, pitchLimits.y);
+        }
 
-        // Gradually move the camera towards the target position
-        transform.position = Vector3.Lerp(currentPosition, targetPosition, followSpeed * Time.deltaTime);
-    }
-
-
-    private void StartFollowing()
-    {
-        canFollow = true;
+        // Calculate new position and rotation
+        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
+        Vector3 offset = rotation * new Vector3(0, 0, -distance);
+        transform.position = target.position + offset;
+        transform.LookAt(target.position);
     }
 
     // Public method to change the camera's target

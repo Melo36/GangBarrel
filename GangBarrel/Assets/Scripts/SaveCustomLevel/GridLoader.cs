@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.IO;
+using Chest;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using GameManager;
 
 public class GridLoader : MonoBehaviour
 {
@@ -16,7 +20,19 @@ public class GridLoader : MonoBehaviour
     private string prefabPath = "Assets/_Prefabs/";
     
     private Button button;
-    public GameObject barrel;
+
+    public List<Item> items;
+    public GameObject necessaryScriptsPrefab;
+    private GameObject instatiatedScripts;
+
+    private GameManager.GameManager gameManager;
+    private GameObject waterParent;
+
+    private Transform playerTransform;
+        
+    // objects displayed in the ui
+    private GameObject currentChest;
+    Dictionary<Vector3Int, GameObject> waterObjectMap = new Dictionary<Vector3Int, GameObject>();
         
     private void Start()
     {
@@ -25,14 +41,20 @@ public class GridLoader : MonoBehaviour
         filePath = filePath + levelName + ".json";
         button = GetComponent<Button>();
         button.onClick.AddListener(makeCustomLevel);
-        
     }
-
 
     private void makeCustomLevel()
     {
         CreateNewScene();
+        waterParent = instatiatedScripts.transform.Find("WaterObjects").gameObject;
+        foreach (Transform water in waterParent.transform)
+        {
+            Vector3Int cellPosition = tilemap.layoutGrid.WorldToCell(water.transform.position);
+            waterObjectMap[cellPosition] = water.gameObject;
+        }
         LoadGridAndTilemapData();
+
+        ScanManager.Instance.ScheduleScan(0.1f, "");
     }
     
     public void LoadGridAndTilemapData()
@@ -43,20 +65,31 @@ public class GridLoader : MonoBehaviour
             GridInformation gridInformation = JsonUtility.FromJson<GridInformation>(json);
 
             // Load grid objects
-            foreach (var gridObjectInformation in gridInformation.gridObjects)
+            for (int i=0; i < gridInformation.gridObjects.Count;i++)
             {
-                createObject(gridObjectInformation.objectName, gridObjectInformation.position);
+                GameObject newObject = createObject(gridInformation.gridObjects[i].objectName, gridInformation.gridObjects[i].position);
+                if (newObject != null && newObject.name == "LChest(Clone)")
+                {
+                    string chestContent = gridInformation.gridObjects[i + 1].chestContent;
+                    setChestContent(newObject, chestContent);
+                    currentChest = newObject;
+                } else if (newObject != null && newObject.name == "LKey(Clone)")
+                {
+                    GameObject keyObject = newObject.transform.Find("KeyPrefab").gameObject;
+                    GameObject chestObject = currentChest.transform.Find("chest_close").gameObject;
+                    gameManager.keyChestPairs.Add(keyObject, chestObject);
+                }
             }
 
             string tilePath = "Assets/GROUND TILESETS RULE TILES/Ground Tiles V3/Rule Tiles/";
             // Load tilemap tiles
             foreach (var tileInformation in gridInformation.tilemapData.tiles)
             {
-                Debug.Log(tilePath + tileInformation.tileName);
-                #if UNITY_EDITOR // TODO: make independent from Editor
                 TileBase tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath + tileInformation.tileName + ".asset"); // Assumes tiles are stored as assets in Resources
                 if (tile != null)
                 {
+                    Destroy(waterObjectMap[tileInformation.position]);
+                    
                     tilemap.SetTile(tileInformation.position, tile);
                     Debug.Log($"Loaded tile {tileInformation.tileName} at {tileInformation.position}");
                 }
@@ -64,12 +97,35 @@ public class GridLoader : MonoBehaviour
                 {
                     Debug.LogError($"Tile {tileInformation.tileName} not found.");
                 }
-                #endif
             }
         }
         else
         {
             Debug.LogError("Grid data file not found.");
+        }
+        
+        Debug.Log("Finished tilemap");
+    }
+
+    private void setChestContent(GameObject chest, string chestContentString)
+    {
+        ChestContent chestContent = chest.GetComponentInChildren<ChestContent>();
+        // Split the string into a string array
+        string[] stringArray = chestContentString.Split(',');
+
+        // Convert string array to int array
+        int[] intArray = new int[stringArray.Length];
+        for (int i = 0; i < stringArray.Length; i++)
+        {
+            intArray[i] = int.Parse(stringArray[i]); // Parse each string to an int
+        }
+
+        for (int i = 0; i < intArray.Length; i++)
+        {
+            for (int j = 0; j < intArray[i]; j++)
+            {
+                chestContent.AddItem(items[i]);
+            }
         }
     }
 
@@ -85,14 +141,26 @@ public class GridLoader : MonoBehaviour
             return null;
         }
         Debug.Log(prefabPath + objectName);
+
         
-        GameObject prefab = Resources.Load<GameObject>(objectName);
-
-        if (prefab)
+        if (objectName == "LPlayer")
         {
-            return Instantiate(prefab, objectPosition, Quaternion.identity);
+            playerTransform = instatiatedScripts.transform.Find("Character_pirate");
+            if (playerTransform)
+            {
+                Debug.Log("Found player");
+            }
+            playerTransform.position = objectPosition;
+            playerTransform.rotation = Quaternion.identity;
         }
-
+        else
+        {
+            GameObject prefab = Resources.Load<GameObject>(objectName);
+            if (prefab)
+            {
+                return Instantiate(prefab, objectPosition, Quaternion.identity);
+            }
+        }
         return null;
     }
 
@@ -103,43 +171,21 @@ public class GridLoader : MonoBehaviour
         
         // Get the current active scene
         Scene oldScene = SceneManager.GetActiveScene();
-
-        // Step 2: Create a Grid GameObject in the new Scene
-        grid = new GameObject("Grid");
-        grid.AddComponent<Grid>();
-        grid.GetComponent<Grid>().cellSwizzle = GridLayout.CellSwizzle.XZY;
-
-        // Step 3: Move the Grid GameObject to the new Scene
-        SceneManager.MoveGameObjectToScene(grid, newScene);
-
-        // Step 4: Create a Tilemap GameObject as a child of the Grid
-        GameObject tilemapObject = new GameObject("Tilemap");
-        tilemapObject.transform.SetParent(grid.transform);
-        tilemap = tilemapObject.AddComponent<UnityEngine.Tilemaps.Tilemap>();
-        tilemap.orientation = Tilemap.Orientation.XZ;
-        tilemapObject.AddComponent<UnityEngine.Tilemaps.TilemapRenderer>();
         
-        // Step 5: Add a Camera to the new Scene
-        GameObject cameraObject = new GameObject("Main Camera");
-        Camera cameraComponent = cameraObject.AddComponent<Camera>();
-        cameraComponent.clearFlags = CameraClearFlags.Skybox;
-        cameraObject.tag = "MainCamera"; // Tag it as Main Camera
-        cameraObject.transform.position = new Vector3(0, 10, -10); // Adjust position
-        cameraObject.transform.rotation = Quaternion.Euler(45, 0, 0); // Adjust rotation
-        SceneManager.MoveGameObjectToScene(cameraObject, newScene);
+        // Step 5: Instantiate all necessary scripts
+        instatiatedScripts = Instantiate(necessaryScriptsPrefab);
+        SceneManager.MoveGameObjectToScene(instatiatedScripts, newScene);
+        ItemUsage itemUsage = instatiatedScripts.GetComponentInChildren<ItemUsage>();
+        tilemap = instatiatedScripts.GetComponentInChildren<Tilemap>();
+        itemUsage.tilemapGrid = tilemap;
 
-        // Step 6: Add a Directional Light to the new Scene
-        GameObject lightObject = new GameObject("Directional Light");
-        Light lightComponent = lightObject.AddComponent<Light>();
-        lightComponent.type = LightType.Directional;
-        lightComponent.intensity = 1f; // Set light intensity
-        lightObject.transform.rotation = Quaternion.Euler(50, -30, 0); // Adjust rotation
-        SceneManager.MoveGameObjectToScene(lightObject, newScene);
+        gameManager = instatiatedScripts.GetComponentInChildren<GameManager.GameManager>();
+        
 
-        // Step 5: Switch to the new Scene
+        // Step 6: Switch to the new Scene
         SceneManager.SetActiveScene(newScene);
         
-        // Step 6: Unload the old Scene (asynchronously)
+        // Step 7: Unload the old Scene (asynchronously)
         SceneManager.UnloadSceneAsync(oldScene);
     }
 }
