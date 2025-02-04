@@ -3,15 +3,19 @@ using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
-using UnityEditor;
 
 public class GridSaver : MonoBehaviour
 {
-    public GameObject gridParent; // Parent object that contains all grid objects
-    public Tilemap tilemap; // Reference to the Tilemap component
+    public GameObject gridParent;
+    public Tilemap tilemap;
     public TextMeshProUGUI levelName;
-    private string chestContentPath = "Assets/CustomLevels/chest_content.txt";
+    private string chestContentPath;
     private int currentChest = 0;
+
+    private void Start()
+    {
+        chestContentPath = Path.Combine(Application.persistentDataPath, "chest_content.txt");
+    }
 
     public void SaveGridAndTilemapData()
     {
@@ -20,7 +24,6 @@ public class GridSaver : MonoBehaviour
         gridInformation.tilemapData = new TilemapInformation();
         gridInformation.tilemapData.tiles = new List<TileInformation>();
 
-        // Save grid objects (same as before)
         foreach (Transform child in gridParent.transform)
         {
             GridObjectInformation gridObjectInformation = new GridObjectInformation
@@ -29,23 +32,26 @@ public class GridSaver : MonoBehaviour
                 position = child.position
             };
             gridInformation.gridObjects.Add(gridObjectInformation);
+
             if (gridObjectInformation.objectName == "LChest(Clone)")
             {
-                string[] lines = File.ReadAllLines(chestContentPath);
-                string currentChestContent = lines[currentChest];
-                
-                GridObjectInformation chestInformation = new GridObjectInformation
+                if (File.Exists(chestContentPath))
                 {
-                    objectName = "Chest Content " + currentChest,
-                    chestContent = currentChestContent
-                };
-                
-                gridInformation.gridObjects.Add(chestInformation);
-                currentChest++;
+                    string[] lines = File.ReadAllLines(chestContentPath);
+                    if (currentChest < lines.Length)
+                    {
+                        GridObjectInformation chestInformation = new GridObjectInformation
+                        {
+                            objectName = "Chest Content " + currentChest,
+                            chestContent = lines[currentChest]
+                        };
+                        gridInformation.gridObjects.Add(chestInformation);
+                        currentChest++;
+                    }
+                }
             }
         }
 
-        // Save tilemap tiles
         BoundsInt bounds = tilemap.cellBounds;
         foreach (var position in bounds.allPositionsWithin)
         {
@@ -55,14 +61,13 @@ public class GridSaver : MonoBehaviour
                 TileInformation tileInformation = new TileInformation
                 {
                     position = position,
-                    tileName = tile.name // or use tile.GetInstanceID() for more unique identification
+                    tileName = tile.name 
                 };
                 gridInformation.tilemapData.tiles.Add(tileInformation);
             }
         }
 
-        // Serialize to JSON
-        string filePath = "Assets/CustomLevels/" + levelName.text + ".json";
+        string filePath = Path.Combine(Application.persistentDataPath, levelName.text + ".json");
         string json = JsonUtility.ToJson(gridInformation, true);
         File.WriteAllText(filePath, json);
         Debug.Log("Grid and Tilemap data saved to: " + filePath);

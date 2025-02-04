@@ -7,11 +7,12 @@ using UnityEngine.UI;
 
 public class FillLevelBrowser : MonoBehaviour
 {
-    private string filePath = "Assets/CustomLevels/";
+    private string filePath;
     public GameObject button;
     
     void Start()
     {
+        filePath = Application.persistentDataPath;
         if (Directory.Exists(filePath))
         {
             string[] files = Directory.GetFiles(filePath, "*.json");
@@ -19,8 +20,8 @@ public class FillLevelBrowser : MonoBehaviour
             foreach (string file in files)
             {
                 GameObject newButton = Instantiate(button, transform);
-                string fileName = Path.GetFileName(file);
-                newButton.GetComponentInChildren<TextMeshProUGUI>().text = fileName.Split(".")[0];
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                newButton.GetComponentInChildren<TextMeshProUGUI>().text = fileName;
             }
         }
         else
