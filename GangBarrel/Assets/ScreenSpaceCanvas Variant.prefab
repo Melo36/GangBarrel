@@ -25,6 +25,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2867472637713168808, guid: 943b3ef082caa144a89c5e1a774c45db, type: 2}
     - target: {fileID: 557011575574607336, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 557011575574607336, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}

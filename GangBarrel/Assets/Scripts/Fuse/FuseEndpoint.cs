@@ -66,6 +66,12 @@ public class FuseEndpoint : MonoBehaviour
                 }
             }
         }
+
+        if (other.CompareTag("ExplosionTrigger"))
+        {
+            attachedFuse.LightFuse();
+        }
+        
     }
 
     private void OnTriggerExit(Collider other)
