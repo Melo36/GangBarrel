@@ -16,10 +16,11 @@ public class ChestContentSetter : MonoBehaviour
     public Button doneButton;
     public Button closeButton;
 
-    private string filePath = "Assets/CustomLevels/chest_content.txt";
+    private string filePath;
 
     private void Start()
     {
+        filePath = Path.Combine(Application.persistentDataPath, "chest_content.txt");
         doneButton.onClick.AddListener(setObjectsInsideChest);
         doneButton.onClick.AddListener(SaveArrayToFile);
         doneButton.onClick.AddListener(closeUI);

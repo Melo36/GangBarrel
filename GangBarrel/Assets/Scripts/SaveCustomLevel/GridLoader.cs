@@ -38,7 +38,7 @@ public class GridLoader : MonoBehaviour
     {
         string levelName = GetComponentInChildren<TextMeshProUGUI>().text;
         Debug.Log(Application.dataPath);
-        filePath = filePath + levelName + ".json";
+        filePath = Path.Combine(Application.persistentDataPath, levelName + ".json");
         button = GetComponent<Button>();
         button.onClick.AddListener(makeCustomLevel);
     }
@@ -81,21 +81,20 @@ public class GridLoader : MonoBehaviour
                 }
             }
 
-            string tilePath = "Assets/GROUND TILESETS RULE TILES/Ground Tiles V3/Rule Tiles/";
-            // Load tilemap tiles
             foreach (var tileInformation in gridInformation.tilemapData.tiles)
             {
-                TileBase tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath + tileInformation.tileName + ".asset"); // Assumes tiles are stored as assets in Resources
+                TileBase tile = Resources.Load<TileBase>("Tiles/" + tileInformation.tileName);
                 if (tile != null)
                 {
-                    Destroy(waterObjectMap[tileInformation.position]);
-                    
+                    if (waterObjectMap.ContainsKey(tileInformation.position))
+                    {
+                        Destroy(waterObjectMap[tileInformation.position]);
+                    }
                     tilemap.SetTile(tileInformation.position, tile);
-                    Debug.Log($"Loaded tile {tileInformation.tileName} at {tileInformation.position}");
                 }
                 else
                 {
-                    Debug.LogError($"Tile {tileInformation.tileName} not found.");
+                    Debug.LogError("Tile " + tileInformation.tileName + " not found in Resources.");
                 }
             }
         }
