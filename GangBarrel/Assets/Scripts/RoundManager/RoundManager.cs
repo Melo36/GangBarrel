@@ -30,6 +30,10 @@ public class RoundManager : MonoBehaviour
     private void Awake()
     {
         playerController = FindObjectOfType<PlayerController>();
+        turnTextBackground = GameObject.Find("TurnBasedBackgroundUI");
+        turnText = GameObject.Find("TurnBasedText").GetComponent<TextMeshProUGUI>();
+        remainingActionsText = GameObject.Find("RemainingActionsText").GetComponent<TextMeshProUGUI>();
+        endTurnEarly = GameObject.Find("EndTurnEarly").GetComponent<Button>();
         
         isCombatActive.Subscribe(inCombat =>
         {

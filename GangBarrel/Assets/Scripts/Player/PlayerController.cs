@@ -79,6 +79,11 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        // assign references
+        moveShootToggle = GameObject.Find("MoveShootToggle").GetComponent<Button>();
+        buttonTextMesh = GameObject.Find("MoveShootToggleButtonText").GetComponent<TextMeshProUGUI>();
+        currentModeTextMesh = GameObject.Find("MoveShootCurrentModeText").GetComponent<TextMeshProUGUI>();
+            
         playerUI = GetComponent<PlayerUI>();
         if (!mainCamera)
         {
@@ -129,6 +134,7 @@ public class PlayerController : MonoBehaviour
             playerUI.UpdateLifeUI(newValue);
             if (newValue == 0)
             {
+                Debug.Log("Time scale = 0");
                 Time.timeScale = 0f;
                 promptManager.ShowGameOverScreen();
             }

@@ -85,6 +85,7 @@ public class GridLoader : MonoBehaviour
             // Load tilemap tiles
             foreach (var tileInformation in gridInformation.tilemapData.tiles)
             {
+                /*
                 TileBase tile = AssetDatabase.LoadAssetAtPath<TileBase>(tilePath + tileInformation.tileName + ".asset"); // Assumes tiles are stored as assets in Resources
                 if (tile != null)
                 {
@@ -93,10 +94,12 @@ public class GridLoader : MonoBehaviour
                     tilemap.SetTile(tileInformation.position, tile);
                     Debug.Log($"Loaded tile {tileInformation.tileName} at {tileInformation.position}");
                 }
+                
                 else
                 {
                     Debug.LogError($"Tile {tileInformation.tileName} not found.");
                 }
+                */
             }
         }
         else

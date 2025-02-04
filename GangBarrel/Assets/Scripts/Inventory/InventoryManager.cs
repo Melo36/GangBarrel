@@ -25,6 +25,7 @@ namespace Inventory
         
         private void Awake()
         {
+            inventoryContentParent = GameObject.Find("InventoryContent");
             SyncCheckInventoryUI();
         }
 
