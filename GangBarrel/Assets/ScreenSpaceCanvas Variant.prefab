@@ -108,6 +108,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: HeaderTextTutorial
       objectReference: {fileID: 0}
+    - target: {fileID: 5771732753170650092, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 688.8332
+      objectReference: {fileID: 0}
+    - target: {fileID: 5771732753170650092, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 126.4395
+      objectReference: {fileID: 0}
+    - target: {fileID: 5771732753170650092, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5771732753170650092, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 262.78027
+      objectReference: {fileID: 0}
     - target: {fileID: 6415383275833460325, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
       propertyPath: m_Name
       value: ScreenSpaceCanvas Variant
@@ -227,6 +243,18 @@ PrefabInstance:
     - target: {fileID: 7892177099741625037, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
       propertyPath: m_Name
       value: MoreImages2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7909142557006066471, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_text
+      value: Game Over
+      objectReference: {fileID: 0}
+    - target: {fileID: 7909142557006066471, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
+      objectReference: {fileID: 0}
+    - target: {fileID: 7909142557006066471, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7994658824729645251, guid: a6e3c9a27073de743b76f2cf865ba553, type: 3}
       propertyPath: m_IsActive
