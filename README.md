@@ -22,6 +22,6 @@ The game also includes a level editor where players can create their own levels 
 
 <p align="left">
   <a href="https://youtu.be/KuIMcXQQPpk?si=5liIMFTiN8Z4TqWY">
-    <img src="https://img.youtube.com/vi/Rl7MXihG4cs/maxresdefault.jpg" alt="MedAR Virtual Patient Demo" width="70%">
+    <img src="https://img.youtube.com/vi/KuIMcXQQPpk/maxresdefault.jpg" alt="MedAR Virtual Patient Demo" width="70%">
   </a>
 </p>
